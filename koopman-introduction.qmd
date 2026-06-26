@@ -234,7 +234,7 @@ lambdas = torch.tensor([k * lam for k in range(J)])
 Take $\kg(\Phi) = \cos(\Phi)$, which is *not* itself an eigenfunction. The goal is to express it as
 
 $$
-\kg(\Phi_0) = \sum_{j=0}^{J} \kv_j \kpsi_j(\Phi_0)
+\kg(\Phi) = \sum_{j=0}^{J} \kv_j \kpsi_j(\Phi) \qquad \forall\, \Phi \in \mathbb{R}
 $$
 
 #### General projection
@@ -310,13 +310,13 @@ plt.show()
 
 ### Step 3 — propagate
 
-Now that the initial condition is expressed in the basis of eigenfunctions, we can propagate the signal in this space :
+Now that $\kg$ is expressed in the basis of eigenfunctions for *any* $\Phi$ (Step 2), we can apply that same identity at $\Phi(t) = T(\Phi_0, t)$ and use the eigenfunction property to propagate the signal in this space :
 
 $$
-K^t \kg(\Phi_0) = \sum_{j=0}^{\infty} \kv_j K^t \kPsi_j(\Phi_0) = \sum_{j=0}^{\infty} \kv_j\, e^{j\klam t}\, \Phi_0^j = \kg(T(\Phi_0, t))
+\kg\big(\Phi(t)\big) = \sum_{j=0}^{\infty} \kv_j \kpsi_j\big(\Phi(t)\big) = \sum_{j=0}^{\infty} \kv_j \kpsi_j\big(T(\Phi_0, t)\big) \overset{\text{eig.}}{=} \sum_{j=0}^{\infty} \kv_j\, e^{\klam_j t}\, \kpsi_j(\Phi_0)
 $$
 
-In practice $j$ is finite, so the last equality sign is an approximation !
+In practice $j$ is finite, so this is an approximation !
 
 ```{python}
 #| label: propagation-compute
