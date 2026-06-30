@@ -1,0 +1,23 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Etienne Meunier"
+  site-url: https://etienne-meunier.github.io/Blog
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    fig-cap-location: bottom
+    highlight-style: github
+
+execute:
+  warning: false
+  jupyter: python3

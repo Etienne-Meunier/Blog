@@ -1,0 +1,542 @@
+---
+title: "Learning Linear Dynamics"
+subtitle: "Four ways to recover A from observations of z(t) = exp(At)z₀"
+author: "Etienne Meunier"
+date: today
+format:
+  html:
+    code-fold: false
+    fig-align: center
+    grid:
+      body-width: 1400px
+execute:
+  echo: true
+---
+
+# The inverse problem
+
+In the [previous post](matrix-exponential.html) we studied how to *evaluate* $e^{At}z_0$ efficiently.
+Here we flip the question:
+
+> Given observations $z(t_1), \ldots, z(t_n)$ of a trajectory driven by $\dot{z} = Az$, recover the matrix $A$.
+
+This is the core sub-problem in system identification, Koopman operator learning, and physics-informed machine learning.
+We compare four approaches that differ in their data requirements, computational cost, and sensitivity to noise.
+
+## Ground truth
+
+We use a **stable node** with off-diagonal coupling as the true system and observe the trajectory at $n = 4$ uniformly-spaced time points. The eigenvalues are $-0.1$ and $-1$ — real, stable, with well-separated time scales.
+
+$$A = \begin{pmatrix}-0.4 & 0.6 \\ 0.3 & -0.7\end{pmatrix}, \quad z_0 = \begin{pmatrix}1 \\ 1.5\end{pmatrix}$$
+
+```{python}
+#| code-fold: true
+#| code-summary: "imports"
+import torch
+import numpy as np
+import matplotlib.pyplot as plt
+from torchdiffeq import odeint
+from tqdm import tqdm
+from scipy.interpolate import CubicSpline
+from scipy.linalg import logm
+
+plt.rcParams.update({
+    'figure.dpi': 110,
+    'axes.grid': True,
+    'grid.alpha': 0.25,
+    'axes.spines.top': False,
+    'axes.spines.right': False,
+    'font.size': 10,
+})
+```
+
+```{python}
+A = torch.tensor([[-0.4,  0.6],
+                   [ 0.3, -0.7]], dtype=torch.float64)   # stable node, eigs = -0.1, -1.0
+
+# Generate true points
+T_gt, dt_gt = 2.0, 0.5
+z0 = torch.tensor([1.0, 1.5], dtype=torch.float64)
+t_gt = torch.linspace(0, T_gt, int(T_gt//dt_gt))
+
+z_gt = torch.matrix_exp(A[None]*t_gt[:, None, None])@z0
+```
+
+```{python}
+#| code-fold: true
+#| code-summary: "plotting helpers"
+def _streamplot(ax, M, color, alpha=0.45, density=0.9,
+                xlim=(-0.2, 1.7), ylim=(-0.2, 1.9), n_grid=20):
+    M_np = M.real.detach().numpy() if torch.is_complex(M) else M.detach().numpy()
+    xs = np.linspace(*xlim, n_grid)
+    ys = np.linspace(*ylim, n_grid)
+    X, Y = np.meshgrid(xs, ys)
+    pts = np.stack([X.ravel(), Y.ravel()], axis=1)
+    UV = pts @ M_np.T
+    sp = ax.streamplot(xs, ys,
+                       UV[:, 0].reshape(n_grid, n_grid),
+                       UV[:, 1].reshape(n_grid, n_grid),
+                       density=density, color=color,
+                       linewidth=0.7, arrowsize=0.6)
+    sp.lines.set_alpha(alpha)
+    sp.arrows.set_alpha(alpha)
+    ax.set_xlim(xlim); ax.set_ylim(ylim)
+    ax.set_aspect('equal')
+    ax.axhline(0, color='k', lw=0.3)
+    ax.axvline(0, color='k', lw=0.3)
+
+
+def plot_results(metrics, B, z_pred, z_gt, t_gt, title=None):
+    has_metrics = isinstance(metrics, list) and len(metrics) > 0
+    ncols = 3 if has_metrics else 2
+    fig, axes = plt.subplots(1, ncols, figsize=(3 * ncols, 3.5))
+    if title:
+        fig.suptitle(title, fontsize=12, fontweight='bold')
+
+    col = 0
+
+    # training metrics (gradient-based approaches only)
+    if has_metrics:
+        ax = axes[col]; col += 1
+        c1, c2 = 'tab:green', 'tab:purple'
+        ax.plot([l['loss'] for l in metrics], color=c1)
+        ax.set_xlabel('Epoch'); ax.set_ylabel('Loss', color=c1)
+        ax.tick_params(axis='y', labelcolor=c1)
+        ax2 = ax.twinx()
+        ax2.plot([l['forb'] for l in metrics], color=c2)
+        ax2.set_ylabel(r'$\|A - B\|_F^2$', color=c2)
+        ax2.tick_params(axis='y', labelcolor=c2)
+        ax.set_title('Training metrics')
+
+    # trajectory comparison
+    ax = axes[col]; col += 1
+    t_np = t_gt.numpy()
+    ax.scatter(t_np, z_gt[:, 0].detach(), color='tab:blue',   s=55, zorder=3, label='$z_1$ gt')
+    ax.scatter(t_np, z_gt[:, 1].detach(), color='tab:orange', s=55, zorder=3, label='$z_2$ gt')
+    ax.plot(t_np, z_pred[:, 0].detach(), color='tab:blue',   ls='--', lw=1.8, label='$z_1$ pred')
+    ax.plot(t_np, z_pred[:, 1].detach(), color='tab:orange', ls='--', lw=1.8, label='$z_2$ pred')
+    ax.set_xlabel('$t$'); ax.set_title('Trajectory')
+    ax.legend(fontsize=8, loc='best')
+
+    # phase portrait: true A (grey) vs fitted B (red)
+    ax = axes[col]
+    _streamplot(ax, A, color='#aaaaaa', alpha=0.4)
+    _streamplot(ax, B, color='tab:red',  alpha=0.6)
+    t_fine = torch.linspace(0, T_gt, 300, dtype=torch.float64)
+    B_safe = B.real if torch.is_complex(B) else B
+    with torch.no_grad():
+        z_true_fine = odeint(lambda t, x: A       @ x, z0, t_fine).numpy()
+        z_pred_fine = odeint(lambda t, x: B_safe  @ x, z0, t_fine).numpy()
+    ax.plot(z_true_fine[:, 0], z_true_fine[:, 1], color='#444444', lw=1.8, label='true $A$')
+    ax.plot(z_pred_fine[:, 0], z_pred_fine[:, 1], color='royalblue', ls='--', lw=1.8, label='fitted $B$')
+    ax.scatter(*z0.numpy(), color='k', s=60, zorder=5)
+    ax.set_title('Phase portrait'); ax.legend(fontsize=8)
+
+    plt.tight_layout()
+    plt.show()
+```
+
+# Approach 1 — Gradient descent on matrix exponential
+
+## Idea
+
+Directly optimise $B \in \mathbb{R}^{p \times p}$ to minimise the squared error at every observed time:
+
+$$\mathcal{L}(B) = \sum_{i=1}^{n} \left\| e^{B t_i} z_0 - z(t_i) \right\|^2$$
+
+Gradients flow through `torch.matrix_exp` (which uses a Padé approximation internally).
+No structure is imposed on $B$ — stability, symmetry, sparsity are unconstrained.
+
+**Data requirement:** a single trajectory.
+
+## Code
+
+```{python}
+#| output: false
+B = torch.randn((2,2), dtype=torch.float64, requires_grad=True)
+opt = torch.optim.SGD([B], lr=0.005)
+
+def step() :
+    opt.zero_grad()
+    z_pred = torch.matrix_exp(B[None]*t_gt[:, None, None])@z0
+    L = (z_pred - z_gt).pow(2).sum()
+    L.backward()
+    opt.step()
+    return {'loss' : L.item(), 'forb' : (A - B).pow(2).sum()}
+
+metrics = [step() for i in tqdm(range(1000))]
+```
+
+```{python}
+#| code-fold: true
+#| code-summary: "plot"
+with torch.no_grad() :
+    z_pred = torch.matrix_exp(B[None]*t_gt[:, None, None])@z0
+    plot_results(metrics, B, z_pred, z_gt, t_gt, title='Approach 1 — Gradient descent on expm')
+```
+
+# Approach 2 — Neural ODE
+
+## Idea
+
+Same loss as Approach 1, but the forward pass uses a numerical ODE solver instead of the closed-form matrix exponential:
+
+$$\mathcal{L}(B) = \sum_{i=1}^{n} \left\| \texttt{odeint}(B,\, z_0,\, t_i) - z(t_i) \right\|^2$$
+
+Gradients propagate through the integrator via the adjoint method.
+The two approaches are equivalent in theory but differ numerically: `odeint` introduces discretisation error that can smooth the loss landscape.
+
+**Data requirement:** a single trajectory.
+
+## Code
+
+```{python}
+#| output: false
+B = torch.randn((2,2), dtype=torch.float64, requires_grad=True)
+opt = torch.optim.Adam([B], lr=0.01)
+
+def step() :
+    opt.zero_grad()
+    z_pred = odeint(lambda t, x : B@x, z0, t_gt)
+    L = (z_pred - z_gt).pow(2).sum()
+    L.backward()
+    opt.step()
+    return {'loss' : L.item(), 'forb' : (A - B).pow(2).sum()}
+
+metrics = [step() for i in tqdm(range(2000))]
+```
+
+```{python}
+#| code-fold: true
+#| code-summary: "plot"
+with torch.no_grad() :
+    z_pred = odeint(lambda t, x : B@x, z0, t_gt)
+    plot_results(metrics, B, z_pred, z_gt, t_gt, title='Approach 2 — Neural ODE')
+```
+
+# Approach 3 — Derivative matching
+
+## Idea
+
+Since $\dot{z}(t) = Az(t)$ holds pointwise, stacking observations column-wise gives a **linear** equation in $A$:
+
+$$\dot{Z} = A Z, \qquad Z = \bigl[z(t_1) \;\cdots\; z(t_n)\bigr] \in \mathbb{R}^{p \times n}$$
+
+The least-squares solution is:
+
+$$B = \dot{\hat{Z}}\, Z^{\dagger}$$
+
+where $Z^{\dagger} = Z^\top(ZZ^\top)^{-1}$ and $\dot{\hat{Z}}$ is estimated by differentiating a cubic spline fitted to the observations.
+No gradient descent is required — this is a **single linear solve**.
+
+The quality of the estimate depends on how faithfully the spline captures $\dot{z}$, which degrades as observations become sparser.
+
+**Data requirement:** a single trajectory.
+
+## Code
+
+```{python}
+from scipy.interpolate import CubicSpline
+
+sp = CubicSpline(t_gt, z_gt)
+```
+
+```{python}
+#| code-fold: true
+#| code-summary: "spline visualisation"
+t_plot = torch.linspace(0, T_gt, 100)
+fig, axs = plt.subplots(1, 2, figsize=(9, 3))
+
+axs[0].set_title('Cubic spline fit')
+for i, c in enumerate(['tab:blue', 'tab:orange']):
+    axs[0].scatter(t_gt, z_gt[:, i].numpy(), color=c, s=55, zorder=3, label=f'$z_{i+1}$ obs')
+    axs[0].plot(t_plot, sp(t_plot)[:, i], color=c, lw=1.5)
+axs[0].set_xlabel('$t$'); axs[0].legend(fontsize=8)
+
+axs[1].set_title(r'Estimated derivative $\dot{z}(t)$')
+for i, c in enumerate(['tab:blue', 'tab:orange']):
+    axs[1].plot(t_plot, sp(t_plot, 1)[:, i], color=c, lw=1.5, label=f'$\\dot z_{i+1}$')
+axs[1].set_xlabel('$t$'); axs[1].legend(fontsize=8)
+
+plt.tight_layout(); plt.show()
+```
+
+```{python}
+# B = S'(t_gt) \cdot S(t_gt)^{\cross}
+B = (torch.tensor(sp(t_gt, 1)).T)@torch.linalg.pinv(z_gt.T)
+
+metrics = {}
+```
+
+```{python}
+#| code-fold: true
+#| code-summary: "plot"
+with torch.no_grad() :
+    z_pred = odeint(lambda t, x : B@x, z0, t_gt)
+    plot_results(metrics, B, z_pred, z_gt, t_gt, title='Approach 3 — Derivative matching')
+```
+
+# Approach 4 — Matrix logarithm
+
+## Idea
+
+With $K$ trajectories from **different** initial conditions, all observed at the **same** time $t$, stack them column-wise:
+
+$$Z(t) = e^{At} Z_0, \qquad Z_0 = \bigl[z_0^{(1)} \;\cdots\; z_0^{(K)}\bigr] \in \mathbb{R}^{p \times K}$$
+
+For $K \geq p$ with $Z_0$ full row rank, the transition matrix $e^{At}$ is identified by least squares, and $A$ is recovered via the matrix logarithm:
+
+$$e^{At} = Z(t)\, Z_0^{\dagger} \implies A = \frac{1}{t}\,\operatorname{logm}\!\bigl(Z(t)\, Z_0^{\dagger}\bigr)$$
+
+This is a **closed-form, one-shot** estimate — no gradient descent, no derivative estimation.
+
+::: {.callout-warning}
+## Branch cut
+`logm` applies the principal matrix logarithm, which recovers $\lambda_k t$ from $e^{\lambda_k t}$ only when $|\operatorname{Im}(\lambda_k t)| < \pi$.
+For oscillatory modes with frequency $\omega$ this requires $\omega t < \pi$.
+Use a **small** observation time $t$ to stay on the correct branch.
+:::
+
+**Data requirement:** $K \geq p$ trajectories from linearly independent initial conditions.
+
+## Code
+
+```{python}
+T_multi = 0.01
+Z0 = torch.tensor(torch.randn(2, 5), dtype=torch.float64)
+t_multi = torch.tensor([0.0, T_multi]) # We only get one observation per trajectory
+
+Z_multi = torch.matrix_exp(A[None]*t_multi[:, None, None])@Z0
+
+Z_multi = Z_multi[1]
+t_multi = t_multi[1]
+
+
+M = Z_multi@torch.linalg.pinv(Z0)
+
+from scipy.linalg import logm
+B = torch.tensor(logm(M.numpy()).real / T_multi)
+
+metrics = {}
+```
+
+```{python}
+#| code-fold: true
+#| code-summary: "plot"
+with torch.no_grad() :
+    z_pred = odeint(lambda t, x : B@x, z0, t_gt)
+    plot_results(metrics, B, z_pred, z_gt, t_gt, title='Approach 4 — Matrix logarithm')
+```
+
+
+## Approach 5 : find the closest diagonal dynamic 
+
+One can assume that the dynamic is diagonal (each component is independent). 
+
+In this case:
+
+$$
+z_{k,p}(t) = e^{\lambda_p t}\, z_{k,p}(0) \qquad \forall\, t,\, k
+$$
+
+Thus this amounts to solving:
+
+$$
+\lambda_p = \underset{\lambda_p}{\operatorname{argmin}} \sum_{k \in \mathcal{S}} \sum_{i} \bigl(z_{k,p}(t_i) - e^{\lambda_p t_i} z_{k,p}(0)\bigr)^2
+$$
+
+Taking the log of the model linearises the problem in $\lambda_p$:
+
+$$
+\lambda_p = \underset{\lambda_p}{\operatorname{argmin}} \sum_{k \in \mathcal{S}} \sum_{i} \bigl(\log z_{k,p}(t_i) - \lambda_p\, t_i - \log z_{k,p}(0)\bigr)^2
+$$
+
+We can solve this in matrix form. Stacking all time points into $\mathbf{t} \in \mathbb{R}^{n \times 1}$ and defining $L_{i,p} = \log z_p(t_i) - \log z_p(0)$:
+
+$$
+\mathbf{t}\,[\lambda_1, \ldots, \lambda_p] = L \implies \Lambda = \mathbf{t}^{\dagger}\, L
+$$
+
+```{python}
+if (z_gt > 0).all() and (z0 > 0).all():
+    l_gt = torch.log(z_gt)
+    l_0  = torch.log(z0)
+    lbd  = (torch.linalg.pinv(t_gt[:, None].to(torch.float64)) @ (l_gt - l_0)).squeeze()
+    B    = torch.diag(lbd)
+else:
+    print("Approach 5 not applicable: spiral trajectory goes negative — log undefined.")
+    B = torch.full((2, 2), float('nan'), dtype=torch.float64)
+
+metrics = {}
+```
+
+```{python}
+#| code-fold: true
+#| code-summary: "plot"
+with torch.no_grad() :
+    z_pred = odeint(lambda t, x : B@x, z0, t_gt)
+    plot_results(metrics, B, z_pred, z_gt, t_gt, title='Approach 5 — Diagonal log regression')
+```
+
+# Comparing approaches
+
+We run all five methods on the three canonical linear systems from the previous post and
+measure how well each recovered $B$ approximates $A$ in Frobenius norm $\|A - B\|_F$.
+Approaches 1 and 2 use Adam (200 epochs); approach 4 uses $K = 20$ independent trajectories
+from random initial conditions; all others use the same 8 observations over $[0, 2]$.
+
+$$
+A_{\text{stable node}} = \begin{pmatrix}-2 & 0 \\ 0 & -0.5\end{pmatrix}, \qquad
+A_{\text{center}} = \begin{pmatrix}0 & -2 \\ 2 & 0\end{pmatrix}, \qquad
+A_{\text{degen. node}} = \begin{pmatrix}-1 & 1 \\ 0 & -1\end{pmatrix}
+$$
+
+```{python}
+#| code-fold: true
+#| code-summary: "fit all five approaches on the three dynamics"
+
+A_cmp = {
+    "Stable node":        torch.tensor([[-2., 0.], [ 0.,-0.5]], dtype=torch.float64),
+    "Center":             torch.tensor([[ 0.,-2.], [ 2., 0. ]], dtype=torch.float64),
+    "Stable degen. node": torch.tensor([[-1., 1.], [ 0.,-1. ]], dtype=torch.float64),
+}
+z0_cmp = torch.tensor([1.0, 1.5], dtype=torch.float64)
+T_cmp  = 2.0
+t_cmp  = torch.linspace(0, T_cmp, 8, dtype=torch.float64)
+
+def _fit1(z0, t, z_obs, epochs=200):
+    B   = torch.zeros(2, 2, dtype=torch.float64, requires_grad=True)
+    opt = torch.optim.Adam([B], lr=0.02)
+    for _ in range(epochs):
+        opt.zero_grad()
+        (torch.matrix_exp(B[None]*t[:,None,None])@z0 - z_obs).pow(2).sum().backward()
+        opt.step()
+    return B.detach()
+
+def _fit2(z0, t, z_obs, epochs=200):
+    B   = torch.zeros(2, 2, dtype=torch.float64, requires_grad=True)
+    opt = torch.optim.Adam([B], lr=0.02)
+    for _ in range(epochs):
+        opt.zero_grad()
+        (odeint(lambda s, x: B@x, z0, t) - z_obs).pow(2).sum().backward()
+        opt.step()
+    return B.detach()
+
+def _fit3(z0, t, z_obs):
+    sp = CubicSpline(t.numpy(), z_obs.numpy())
+    return (torch.tensor(sp(t.numpy(), 1)).T) @ torch.linalg.pinv(z_obs.T)
+
+def _fit4(A_true, T=0.02, K=20):
+    Z0 = torch.randn(2, K, dtype=torch.float64)
+    Z1 = torch.matrix_exp(A_true * T) @ Z0
+    return torch.tensor(logm((Z1 @ torch.linalg.pinv(Z0)).numpy()).real / T)
+
+def _fit5(z0, t, z_obs):
+    if not ((z_obs > 0).all() and (z0 > 0).all()):
+        return None
+    l_diff = torch.log(z_obs) - torch.log(z0)
+    lbd    = (torch.linalg.pinv(t[:,None]) @ l_diff).squeeze()
+    return torch.diag(lbd)
+
+cmp_results = {}
+for case, A_true in A_cmp.items():
+    z_obs = torch.matrix_exp(A_true[None]*t_cmp[:,None,None]) @ z0_cmp
+    cmp_results[case] = {
+        'A_true': A_true,
+        'fits':   [_fit1(z0_cmp, t_cmp, z_obs),
+                   _fit2(z0_cmp, t_cmp, z_obs),
+                   _fit3(z0_cmp, t_cmp, z_obs),
+                   _fit4(A_true),
+                   _fit5(z0_cmp, t_cmp, z_obs)],
+    }
+```
+
+```{python}
+#| code-fold: true
+#| code-summary: "comparison plots"
+#| out-width: "85%"
+
+ap_labels   = ['Ap.1\nexpm grad', 'Ap.2\nNeural ODE', 'Ap.3\nDeriv. match',
+               'Ap.4\nMatrix log',  'Ap.5\nDiag. regr']
+ap_colors   = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple']
+case_list   = list(A_cmp.keys())
+case_colors = ['#1976D2', '#F57C00', '#388E3C']
+
+t_fine = torch.linspace(0, T_cmp, 300, dtype=torch.float64)
+z_trs  = {case: (torch.matrix_exp(cmp_results[case]['A_true'][None]*t_fine[:,None,None]) @ z0_cmp).numpy()
+          for case in case_list}
+
+fig = plt.figure(figsize=(11, 8))
+gs  = fig.add_gridspec(2, 3, height_ratios=[1.2, 1], hspace=0.5, wspace=0.3)
+
+for col, case in enumerate(case_list):
+    Bs   = cmp_results[case]['fits']
+    ax   = fig.add_subplot(gs[0, col])
+    z_tr = z_trs[case]
+    clip = float(np.abs(z_tr).max()) * 4
+
+    for B, lbl, c in zip(Bs, ap_labels, ap_colors):
+        if B is None:
+            continue
+        B_r = B.real if torch.is_complex(B) else B
+        try:
+            with torch.no_grad():
+                z_p = odeint(lambda s, x: B_r@x, z0_cmp, t_fine).numpy()
+            if np.abs(z_p).max() < clip:
+                ax.plot(z_p[:,0], z_p[:,1], '--', color=c, lw=1.8,
+                        label=lbl.split('\n')[0], zorder=3)
+        except Exception:
+            pass
+
+    ax.plot(z_tr[:,0], z_tr[:,1], 'k-', lw=2, label='True', alpha=0.5, zorder=2)
+    ax.scatter(*z0_cmp.numpy(), color='k', s=60, zorder=15)
+    ax.set_aspect('equal', adjustable='datalim')
+    ax.set_title(case, fontweight='bold')
+    ax.set_xlabel('$z_1$'); ax.set_ylabel('$z_2$')
+    if col == 0:
+        ax.legend(fontsize=7, loc='upper right')
+
+ax_bar = fig.add_subplot(gs[1, :])
+x      = np.arange(len(ap_labels))
+width  = 0.25
+
+na_bar_drawn = False
+for j, (case, c_bar) in enumerate(zip(case_list, case_colors)):
+    A_true = cmp_results[case]['A_true']
+    for i, B in enumerate(cmp_results[case]['fits']):
+        pos = x[i] + (j - 1)*width
+        if B is None:
+            label = 'N/A (not applicable)' if not na_bar_drawn else '_'
+            ax_bar.bar(pos, 0.08, width, color='#cccccc', edgecolor='white',
+                       hatch='///', alpha=0.9, label=label)
+            na_bar_drawn = True
+        else:
+            B_r   = B.real if torch.is_complex(B) else B
+            frob  = (A_true - B_r).norm(p='fro').item()
+            label = case if i == 0 else '_'
+            ax_bar.bar(pos, frob, width, color=c_bar, alpha=0.85,
+                       edgecolor='white', label=label)
+
+ax_bar.set_xticks(x)
+ax_bar.set_xticklabels([l.replace('\n', ' ') for l in ap_labels])
+ax_bar.set_ylabel(r'$\|A - B\|_F$')
+ax_bar.set_title('Frobenius estimation error per approach and dynamics', fontweight='bold')
+ax_bar.legend(fontsize=9)
+ax_bar.set_ylim(bottom=0)
+
+plt.suptitle('Comparing all approaches on canonical dynamics', fontsize=13, fontweight='bold')
+plt.tight_layout()
+plt.show()
+```
+
+# Summary
+
+| Approach | Closed form | Data needed | Main sensitivity |
+|---|:---:|---|---|
+| Gradient on expm | No | Single trajectory | Loss landscape, learning rate |
+| Neural ODE | No | Single trajectory | Solver step size, learning rate |
+| Derivative matching | Yes | Single trajectory | Spline quality (sparse data) |
+| Matrix logarithm | Yes | $K \geq p$ trajectories, same $t$ | Branch cut (use small $t$) |
+| Diagonal log regression | Yes | Single trajectory | Assumes $A$ diagonal; log-space loss |
+
+The closed-form approaches (3, 4, 5) are generally preferable when their assumptions hold: derivative matching for a single dense trajectory, matrix logarithm when you control initial conditions, and diagonal regression when the dynamics are known to be decoupled.

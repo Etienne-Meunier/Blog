@@ -5,17 +5,11 @@ author: "Etienne Meunier"
 date: today
 format:
   html:
-    toc: true
-    toc-depth: 3
     code-fold: false
-    theme: cosmo
-    highlight-style: github
     grid:
       body-width: 1100px
 execute:
   echo: true
-  warning: false
-jupyter: python3
 ---
 
 # Forecasting a linear dynamic

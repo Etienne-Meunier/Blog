@@ -5,23 +5,11 @@ author: "Etienne Meunier"
 date: today
 format:
   html:
-    theme: cosmo
-    toc: true
-    toc-depth: 3
     number-sections: true
     code-fold: show
     code-tools: true
-    fig-cap-location: bottom
-    embed-resources: true
     include-in-header:
       text: |
-        <!-- Centralized color scheme for recurring symbols: change the hex
-             codes here to re-theme every occurrence of psi, Psi, lambda, v
-             and g across the whole document. Note: we cannot override the
-             built-in \psi / \Psi / \lambda macros directly - MathJax treats
-             that as redefining a primitive and breaks parsing for any math
-             after the first use, so we define new command names instead and
-             use those throughout the body. -->
         <script>
         window.MathJax = {
           tex: {
@@ -36,9 +24,6 @@ format:
           }
         };
         </script>
-execute:
-  warning: false
-jupyter: python3
 ---
 
 # Introduction : 
