@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Etienne Meunier">
+<meta name="dcterms.date" content="2026-06-30">
+
+<title>Koopman Eigenfunctions — An Introduction – Etienne Meunier</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-09bcd2438ddda8166a810b4ec224e0a2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+window.MathJax = {
+  tex: {
+    macros: {
+      kpsi: ["\\textcolor{#1f77b4}{\\psi}", 0],
+      kPsi: ["\\textcolor{#1f77b4}{\\Psi}", 0],
+      klam: ["\\textcolor{#ff7f0e}{\\lambda}", 0],
+      kv: ["\\textcolor{#9467bd}{v}", 0],
+      kvb: ["\\textcolor{#9467bd}{\\mathbf{v}}", 0],
+      kg: ["\\textcolor{#2ca02c}{g}", 0]
+    }
+  }
+};
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Etienne Meunier</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction :</a>
+  <ul class="collapse">
+  <li><a href="#dynamical-system-and-its-flow" id="toc-dynamical-system-and-its-flow" class="nav-link" data-scroll-target="#dynamical-system-and-its-flow"><span class="header-section-number">1.1</span> Dynamical system and its flow</a></li>
+  <li><a href="#the-koopman-operator" id="toc-the-koopman-operator" class="nav-link" data-scroll-target="#the-koopman-operator"><span class="header-section-number">1.2</span> The Koopman operator</a>
+  <ul class="collapse">
+  <li><a href="#koopman-eigenfunctions" id="toc-koopman-eigenfunctions" class="nav-link" data-scroll-target="#koopman-eigenfunctions"><span class="header-section-number">1.2.1</span> Koopman eigenfunctions</a></li>
+  <li><a href="#decomposing-a-general-observable-in-this-basis" id="toc-decomposing-a-general-observable-in-this-basis" class="nav-link" data-scroll-target="#decomposing-a-general-observable-in-this-basis"><span class="header-section-number">1.2.2</span> Decomposing a general observable in this basis</a></li>
+  </ul></li>
+  <li><a href="#worked-example-scalar-linear-ode" id="toc-worked-example-scalar-linear-ode" class="nav-link" data-scroll-target="#worked-example-scalar-linear-ode"><span class="header-section-number">1.3</span> Worked example: scalar linear ODE</a>
+  <ul class="collapse">
+  <li><a href="#koopman-decompostion-the-plan" id="toc-koopman-decompostion-the-plan" class="nav-link" data-scroll-target="#koopman-decompostion-the-plan"><span class="header-section-number">1.3.1</span> Koopman decompostion : the plan</a></li>
+  <li><a href="#step-1-search-for-eigenfunctions" id="toc-step-1-search-for-eigenfunctions" class="nav-link" data-scroll-target="#step-1-search-for-eigenfunctions"><span class="header-section-number">1.3.2</span> Step 1 — search for eigenfunctions</a></li>
+  <li><a href="#step-2-decompose-a-general-observable-in-this-eigenbasis" id="toc-step-2-decompose-a-general-observable-in-this-eigenbasis" class="nav-link" data-scroll-target="#step-2-decompose-a-general-observable-in-this-eigenbasis"><span class="header-section-number">1.3.3</span> Step 2 — decompose a general observable in this eigenbasis</a></li>
+  <li><a href="#step-3-propagate" id="toc-step-3-propagate" class="nav-link" data-scroll-target="#step-3-propagate"><span class="header-section-number">1.3.4</span> Step 3 — propagate</a></li>
+  </ul></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion"><span class="header-section-number">1.4</span> Discussion</a>
+  <ul class="collapse">
+  <li><a href="#why-cant-we-do-this-in-practice" id="toc-why-cant-we-do-this-in-practice" class="nav-link" data-scroll-target="#why-cant-we-do-this-in-practice"><span class="header-section-number">1.4.1</span> Why can’t we do this in practice ?</a></li>
+  <li><a href="#koopman-as-an-optimization-problem" id="toc-koopman-as-an-optimization-problem" class="nav-link" data-scroll-target="#koopman-as-an-optimization-problem"><span class="header-section-number">1.4.2</span> Koopman as an optimization problem</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Koopman Eigenfunctions — An Introduction</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">From the flow of a dynamical system to a linear, infinite-dimensional operator</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Etienne Meunier </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 30, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Introduction :</h1>
+<section id="dynamical-system-and-its-flow" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="dynamical-system-and-its-flow"><span class="header-section-number">1.1</span> Dynamical system and its flow</h2>
+<p>Consider a (possibly nonlinear) dynamical system on the state <span class="math inline">\(\Phi(t)\)</span>:</p>
+<p><span class="math display">\[
+\frac{d\Phi(t)}{dt} = S(\Phi(t))
+\]</span></p>
+<p>Integrating from an initial condition <span class="math inline">\(\Phi_0\)</span> defines the <strong>flow</strong> <span class="math inline">\(T\)</span>:</p>
+<p><span class="math display">\[
+T(\Phi_0, t) = \Phi_0 + \int_0^t S(\Phi(t'))\, dt' = \Phi(t)
+\]</span></p>
+<p><span class="math inline">\(T\)</span> maps an initial condition <span class="math inline">\(\Phi_0\)</span> and a time <span class="math inline">\(t\)</span> to the state reached at time <span class="math inline">\(t\)</span>. It is, in general, nonlinear in <span class="math inline">\(\Phi_0\)</span> — that nonlinearity is exactly the difficulty Koopman theory is built to sidestep.</p>
+</section>
+<section id="the-koopman-operator" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="the-koopman-operator"><span class="header-section-number">1.2</span> The Koopman operator</h2>
+<p>Instead of tracking the state <span class="math inline">\(\Phi\)</span> directly, Koopman theory tracks <strong>observables</strong> — scalar functions of the state. For every observable <span class="math inline">\(\kg : \mathbb{R}^p \to \mathbb{R}\)</span>, there exists a linear operator <span class="math inline">\(K^t : \mathcal{H} \to \mathcal{H}\)</span> such that</p>
+<p><span class="math display">\[
+K^t \kg(\Phi_0) = \kg\big(T(\Phi_0, t)\big)
+\]</span></p>
+<section id="koopman-eigenfunctions" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="koopman-eigenfunctions"><span class="header-section-number">1.2.1</span> Koopman eigenfunctions</h3>
+<p>Koopman eigenfunctions are <em>special observables</em> <span class="math inline">\(\kPsi_j\)</span> (<span class="math inline">\(j = 1, 2, 3, \dots\)</span>) that are eigenfunctions of <span class="math inline">\(K^t\)</span> and thus verify :</p>
+<p><span class="math display">\[
+K^t \kPsi_j(\Phi_0) = e^{\klam_j t} \kPsi_j(\Phi_0)
+\]</span></p>
+<p>There could be an infinity of observables for a given dynamic, in practice we will restrict to <span class="math inline">\(J\)</span>.</p>
+</section>
+<section id="decomposing-a-general-observable-in-this-basis" class="level3" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="decomposing-a-general-observable-in-this-basis"><span class="header-section-number">1.2.2</span> Decomposing a general observable in this basis</h3>
+<p>Any observable <span class="math inline">\(\kg\)</span> can be written as a (generally infinite) linear combination of the <span class="math inline">\(\kPsi_j\)</span>:</p>
+<p><span class="math display">\[
+\kg(\Phi_0) = \sum_{j=0}^{\infty} \kv_j \kPsi_j(\Phi_0)
+\]</span></p>
+<p>Once <span class="math inline">\(\kg\)</span> is expressed in the eigenbasis we can use the eigenfunction property to propagate it forward in time as easily as multiplying each coefficient with an exponential factor :</p>
+<p><span class="math display">\[
+K^t \kg(\Phi_0) = \sum_j \kv_j K^t \kPsi_j(\Phi_0) = \sum_j \kv_j e^{\klam_j t} \kPsi_j(\Phi_0)
+\]</span></p>
+<p>Although in practice, finding a set of <span class="math inline">\(\kPsi_j\)</span> that respect the linearity constraint while allowing for a good reconstruction of any observable is not easy, that’s what we are going to see in the next section !</p>
+</section>
+</section>
+<section id="worked-example-scalar-linear-ode" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="worked-example-scalar-linear-ode"><span class="header-section-number">1.3</span> Worked example: scalar linear ODE</h2>
+<p>Take the simplest possible case:</p>
+<p><span class="math display">\[
+\frac{d\Phi(t)}{dt} = \klam \Phi(t)
+\quad \Longrightarrow \quad
+T(\Phi_0, t) = e^{\klam t} \Phi_0
+\]</span></p>
+<p>Let’s first run it to get a ground-truth trajectory :</p>
+<div id="imports" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Show imports</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchdiffeq <span class="im">import</span> odeint</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="setup" class="cell" data-execution_count="2">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>lam <span class="op">=</span> <span class="op">-</span><span class="fl">0.7</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>phi0 <span class="op">=</span> torch.tensor(<span class="fl">1.3</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>t_span <span class="op">=</span> (<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>t_eval <span class="op">=</span> torch.linspace(t_span[<span class="dv">0</span>], t_span[<span class="dv">1</span>], <span class="dv">100</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> t, phi: lam <span class="op">*</span> phi</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>phit <span class="op">=</span> odeint(f, phi0, t_eval)  <span class="co"># true trajectory</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="koopman-decompostion-the-plan" class="level3" data-number="1.3.1">
+<h3 data-number="1.3.1" class="anchored" data-anchor-id="koopman-decompostion-the-plan"><span class="header-section-number">1.3.1</span> Koopman decompostion : the plan</h3>
+<p><strong>Step 1 :</strong> From the simulated trajectory we find a set of functions that respect the linearity constraint</p>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><span class="math display">\[
+\{\kpsi_j\}_{j=1}^{J} \quad \text{s.t.} \quad \kpsi_j\big(T(\phi_0, t)\big) = e^{\klam_j t}\, \kpsi_j(\phi_0)
+\]</span></p>
+</div>
+</div>
+</div>
+<p><strong>Step 2 :</strong> We express our observable function <span class="math inline">\(\kg\)</span> in this basis <span class="math inline">\(\kPsi\)</span> :</p>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><span class="math display">\[
+\kv^\star = \arg\min_{\kv} \int_\phi \Big(\sum_{j=1}^{J} \kv_j\, \kpsi_j(\phi) - \kg(\phi)\Big)^2 d\phi
+\]</span></p>
+</div>
+</div>
+</div>
+<p><strong>Step 3 :</strong> from the initial observation <span class="math inline">\(\kg(\phi_0)\)</span> we can forecast :</p>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><span class="math display">\[
+\kg(\phi_t) \approx \sum_{j=1}^{J} \kv_j\, e^{\klam_j t}\, \kpsi_j(\phi_0)
+\]</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="step-1-search-for-eigenfunctions" class="level3" data-number="1.3.2">
+<h3 data-number="1.3.2" class="anchored" data-anchor-id="step-1-search-for-eigenfunctions"><span class="header-section-number">1.3.2</span> Step 1 — search for eigenfunctions</h3>
+<p>Try a few candidate observables <span class="math inline">\(\kg\)</span> and check whether <span class="math inline">\(K^t \kg(\Phi_0) = \kg(T(\Phi_0,t))\)</span> matches a pure exponential <span class="math inline">\(e^{\klam_j t} \kg(\Phi_0)\)</span>:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 27%">
+<col style="width: 45%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Candidate</th>
+<th>Test</th>
+<th style="text-align: center;">Eigenfunction?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\kg_1(\Phi) = \Phi\)</span></td>
+<td><span class="math inline">\(K^t \kg_1(\Phi_0) = \kg_1\big(e^{\klam t}\Phi_0\big) = e^{\klam t} \kg_1(\Phi_0)\)</span></td>
+<td style="text-align: center;">✓</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\kg_2(\Phi) = \Phi^2\)</span></td>
+<td><span class="math inline">\(K^t \kg_2(\Phi_0) = \kg_2\big(e^{\klam t}\Phi_0\big) = e^{2\klam t}\Phi_0^2 = e^{2\klam t} \kg_2(\Phi_0)\)</span></td>
+<td style="text-align: center;">✓</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\kg_3(\Phi) = \sin(\Phi)\)</span></td>
+<td><span class="math inline">\(K^t \kg_3(\Phi_0) = \kg_3\big(e^{\klam t}\Phi_0\big) \neq e^{\klam t} \kg_3(\Phi_0)\)</span></td>
+<td style="text-align: center;">✗</td>
+</tr>
+</tbody>
+</table>
+<p>In general, <span class="math inline">\(\kPsi_k(\Phi) = \Phi^k\)</span> for <span class="math inline">\(k \in \mathbb{N}\)</span> are Koopman eigenfunctions of this dynamics, with eigenvalue <span class="math inline">\(k\klam\)</span>. Not every observable is an eigenfunction — <span class="math inline">\(\sin(\Phi)\)</span> is the counter-example.</p>
+<p>We can check this numerically: simulate the true trajectory, evaluate a candidate observable along it, and fit an exponential <span class="math inline">\(\kg(\Phi(t)) = \kg(\Phi_0)\, e^{bt}\)</span>. If the candidate is a genuine eigenfunction, the fitted slopes <span class="math inline">\(b\)</span> at every time point should agree (low variance) and match the predicted eigenvalue.</p>
+<div id="eigentest-compute" class="cell" data-execution_count="3">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># model: g(Phi(t)) = g(Phi0) * exp(b*t), with a = g(Phi0) fixed (known), so we only</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># fit the slope b of log(g(Phi(t)) / g(Phi0)) = b*t (line through origin). g(Phi(t))</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># and g(Phi0) share the same sign here (Phi(t) never crosses zero unless Phi0 = 0).</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>observables <span class="op">=</span> {</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">$</span><span class="er">\</span><span class="vs">Phi</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">^</span><span class="vs">2</span><span class="dv">$</span><span class="vs">"</span>: <span class="kw">lambda</span> phi: phi <span class="op">**</span> <span class="dv">2</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">$\s</span><span class="vs">in</span><span class="kw">(</span><span class="vs">5</span><span class="er">\</span><span class="vs">Phi</span><span class="kw">(</span><span class="vs">t</span><span class="kw">))</span><span class="op">+</span><span class="vs">1</span><span class="dv">$</span><span class="vs">"</span>: <span class="kw">lambda</span> phi: torch.sin(<span class="dv">5</span> <span class="op">*</span> phi) <span class="op">+</span> <span class="dv">1</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>obs_fit <span class="op">=</span> {}</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k, g <span class="kw">in</span> observables.items():</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    gt <span class="op">=</span> g(phit)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    lbds <span class="op">=</span> torch.log(gt[<span class="dv">1</span>:] <span class="op">/</span> gt[<span class="dv">0</span>]) <span class="op">/</span> t_eval[<span class="dv">1</span>:]            <span class="co"># per-timepoint lambda estimate</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    fits_each <span class="op">=</span> gt[<span class="dv">0</span>] <span class="op">*</span> torch.exp(lbds[:, <span class="va">None</span>] <span class="op">*</span> t_eval)    <span class="co"># (n_lbds, T) - one exp fit per estimate</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    fit_t <span class="op">=</span> gt[<span class="dv">0</span>] <span class="op">*</span> torch.exp(lbds.mean() <span class="op">*</span> t_eval)          <span class="co"># exp fit using the average lambda</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    obs_fit[k] <span class="op">=</span> {<span class="st">"gt"</span>: gt, <span class="st">"fit_t"</span>: fit_t, <span class="st">"fits_each"</span>: fits_each, <span class="st">"lambda"</span>: lbds.mean(), <span class="st">"var"</span>: lbds.var()}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-fig-eigentest" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Show plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="bu">len</span>(observables) <span class="op">+</span> <span class="dv">1</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">2.2</span> <span class="op">*</span> (<span class="bu">len</span>(observables) <span class="op">+</span> <span class="dv">1</span>)), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].plot(t_eval, phit, color<span class="op">=</span><span class="st">"black"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="er">\</span><span class="vs">Phi</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Simulated trajectory"</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, (label, d) <span class="kw">in</span> <span class="bu">zip</span>(axes[<span class="dv">1</span>:], obs_fit.items()):</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    ax.plot(t_eval, d[<span class="st">"fits_each"</span>].T, color<span class="op">=</span><span class="st">"C1"</span>, alpha<span class="op">=</span><span class="fl">0.05</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    ax.plot(t_eval, d[<span class="st">"gt"</span>], label<span class="op">=</span><span class="st">"observable"</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    ax.plot(t_eval, d[<span class="st">"fit_t"</span>], <span class="st">"--"</span>, color<span class="op">=</span><span class="st">"C1"</span>, label<span class="op">=</span><span class="ss">f"exp fit (b=</span><span class="sc">{</span>d[<span class="st">'lambda'</span>]<span class="sc">:.2f}</span><span class="ss">, var=</span><span class="sc">{</span>d[<span class="st">'var'</span>]<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    y_lo <span class="op">=</span> torch.minimum(d[<span class="st">"gt"</span>].<span class="bu">min</span>(), d[<span class="st">"fit_t"</span>].<span class="bu">min</span>())</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    y_hi <span class="op">=</span> torch.maximum(d[<span class="st">"gt"</span>].<span class="bu">max</span>(), d[<span class="st">"fit_t"</span>].<span class="bu">max</span>())</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    margin <span class="op">=</span> <span class="fl">0.1</span> <span class="op">*</span> (y_hi <span class="op">-</span> y_lo)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    ax.set_ylim((y_lo <span class="op">-</span> margin).item(), (y_hi <span class="op">+</span> margin).item())</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(label)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    ax.legend(loc<span class="op">=</span><span class="st">"upper right"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].set_xlabel(<span class="st">"t"</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-eigentest" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-eigentest-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="koopman-introduction_files/figure-html/fig-eigentest-output-1.png" width="667" height="622" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-eigentest-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Testing candidate observables: <span class="math inline">\(\Phi(t)^2\)</span> is a true eigenfunction (the faint per-timepoint exp fits collapse onto the average fit), <span class="math inline">\(\sin(5\Phi(t))+1\)</span> is not (the faint fits fan out).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In this simple case we figure out that <span class="math inline">\(\kpsi_j(T(t, \phi)) = e^{j\klam t} \kpsi_j(\phi)\ \forall j \in \mathbb{N}\)</span> and thus they are all eigenfunctions with eigenvalues <span class="math inline">\(j\klam\)</span>.</p>
+<div id="basis-setup" class="cell" data-execution_count="5">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>J <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>Psi <span class="op">=</span> <span class="kw">lambda</span> x: torch.stack([x <span class="op">**</span> k <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, J)], dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>lambdas <span class="op">=</span> torch.tensor([k <span class="op">*</span> lam <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(J)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="step-2-decompose-a-general-observable-in-this-eigenbasis" class="level3" data-number="1.3.3">
+<h3 data-number="1.3.3" class="anchored" data-anchor-id="step-2-decompose-a-general-observable-in-this-eigenbasis"><span class="header-section-number">1.3.3</span> Step 2 — decompose a general observable in this eigenbasis</h3>
+<p>Take <span class="math inline">\(\kg(\Phi) = \cos(\Phi)\)</span>, which is <em>not</em> itself an eigenfunction. The goal is to express it as</p>
+<p><span class="math display">\[
+\kg(\Phi) = \sum_{j=0}^{J} \kv_j \kpsi_j(\Phi) \qquad \forall\, \Phi \in \mathbb{R}
+\]</span></p>
+<section id="general-projection" class="level4" data-number="1.3.3.1">
+<h4 data-number="1.3.3.1" class="anchored" data-anchor-id="general-projection"><span class="header-section-number">1.3.3.1</span> General projection</h4>
+<p>This amounts to projecting <span class="math inline">\(\kg\)</span> onto the basis of eigenfunctions, which can be done by least squares:</p>
+<p><span class="math display">\[
+\kvb = \arg \min_{\kvb} \int_{\phi} \Big(\sum_{j=0}^{J} \kv_j \kpsi_j(\phi) - \kg(\phi)\Big)^2 d\phi
+\]</span></p>
+<p>Since the only unknowns are in <span class="math inline">\(\kvb\)</span>, this is a convex problem whenever the <span class="math inline">\(\kpsi_j\)</span> are linearly independent:</p>
+<p><span class="math display">\[
+\begin{align}
+\kvb &amp;= \arg \min_{\kvb} \int_{\phi} \big(\mathbf{\kPsi}(\phi) \cdot \kv - \kg(\phi)\big)^2 d\phi\\[4pt]
+&amp;\int_\phi \mathbf{\kPsi}(\phi)^T\big(\mathbf{\kPsi}(\phi) \cdot \kv^\star - \kg(\phi)\big)\, d\phi \triangleq 0\\[4pt]
+\kv^\star &amp;= \Big[\int_\phi \mathbf{\kPsi}(\phi)^T\mathbf{\kPsi}(\phi)\, d\phi\Big]^{-1} \cdot \Big[\int_\phi \mathbf{\kPsi}(\phi)\, \kg(\phi)\, d\phi\Big]
+\end{align}
+\]</span></p>
+<p>The integrals can be approximated by sample expectations over <span class="math inline">\(\phi\)</span> :</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Specific projection for this case
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Reminder: Taylor expansion of a scalar function (centered at a point <span class="math inline">\(a\)</span>)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><span class="math display">\[
+f(x) = f(a) + (x-a) f'(a) + \frac{(x-a)^2}{2!} f''(a) + \dots
+\]</span></p>
+</div>
+</div>
+</div>
+<p>Because <span class="math inline">\(\kPsi_j(\Phi) = \Phi^j\)</span> is a polynomial basis, we could alternatively use the ordinary Taylor (Maclaurin) series of <span class="math inline">\(\cos\)</span> centered at <span class="math inline">\(a=0\)</span>:</p>
+<p><span class="math display">\[
+\cos(\Phi_0) = \sum_{j=0}^{\infty} \frac{\cos^{(j)}(0)}{j!} \Phi_0^j
+\qquad \Rightarrow \qquad \kv_j = \frac{\cos^{(j)}(0)}{j!}
+\]</span></p>
+<p>This shortcut only works because the eigenbasis happens to coincide with a power series basis; the general least-squares projection above works regardless of the basis.</p>
+</div>
+</div>
+</div>
+<div id="projection-compute" class="cell" data-execution_count="6">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>target_g <span class="op">=</span> <span class="kw">lambda</span> phi: torch.cos(phi)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>phis <span class="op">=</span> torch.rand(<span class="dv">10</span>) <span class="op">*</span> <span class="fl">2.0</span>          <span class="co"># (10,) sample points</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>psi_phi <span class="op">=</span> Psi(phis)                  <span class="co"># (10, J)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>E <span class="op">=</span> psi_phi.T <span class="op">@</span> psi_phi               <span class="co"># (J, J) Gram matrix</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> psi_phi.T <span class="op">@</span> target_g(phis)        <span class="co"># (J,)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>v_star <span class="op">=</span> torch.linalg.pinv(E) <span class="op">@</span> C     <span class="co"># least-squares coefficients</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>pred_g <span class="op">=</span> <span class="kw">lambda</span> x: Psi(x) <span class="op">@</span> v_star</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-fig-projection" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Show plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> torch.linspace(<span class="dv">0</span>, <span class="dv">4</span>, <span class="dv">100</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>plt.plot(xs, target_g(xs), label<span class="op">=</span><span class="st">"true g"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>plt.plot(xs, pred_g(xs), label<span class="op">=</span><span class="st">"g expressed in basis"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>plt.scatter(phis, target_g(phis), color<span class="op">=</span><span class="st">"black"</span>, s<span class="op">=</span><span class="dv">15</span>, zorder<span class="op">=</span><span class="dv">5</span>, label<span class="op">=</span><span class="st">"fit points"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="er">\</span><span class="vs">Phi</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="vs">r"Projection of </span><span class="dv">$</span><span class="er">\</span><span class="vs">cos</span><span class="kw">(</span><span class="er">\</span><span class="vs">Phi</span><span class="kw">)</span><span class="dv">$</span><span class="vs"> onto </span><span class="dv">$</span><span class="ch">\{</span><span class="er">\</span><span class="vs">Phi</span><span class="dv">^</span><span class="vs">j</span><span class="ch">\}</span><span class="vs">_{j=0}</span><span class="dv">^</span><span class="vs">{J-1}</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-projection" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-projection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="koopman-introduction_files/figure-html/fig-projection-output-1.png" width="495" height="382" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-projection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Projecting g(phi) = cos(phi) onto the polynomial eigenbasis {phi^0, …, phi^(J-1)} via least squares.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="step-3-propagate" class="level3" data-number="1.3.4">
+<h3 data-number="1.3.4" class="anchored" data-anchor-id="step-3-propagate"><span class="header-section-number">1.3.4</span> Step 3 — propagate</h3>
+<p>Now that <span class="math inline">\(\kg\)</span> is expressed in the basis of eigenfunctions for <em>any</em> <span class="math inline">\(\Phi\)</span> (Step 2), we can apply that same identity at <span class="math inline">\(\Phi(t) = T(\Phi_0, t)\)</span> and use the eigenfunction property to propagate the signal in this space :</p>
+<p><span class="math display">\[
+\kg\big(\Phi(t)\big) = \sum_{j=0}^{\infty} \kv_j \kpsi_j\big(\Phi(t)\big) = \sum_{j=0}^{\infty} \kv_j \kpsi_j\big(T(\Phi_0, t)\big) \overset{\text{eig.}}{=} \sum_{j=0}^{\infty} \kv_j\, e^{\klam_j t}\, \kpsi_j(\Phi_0)
+\]</span></p>
+<p>In practice <span class="math inline">\(j\)</span> is finite, so this is an approximation !</p>
+<div id="propagation-compute" class="cell" data-execution_count="8">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Decompose initial state to the modes we found</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>psi0 <span class="op">=</span> Psi(phi0)                                  <span class="co"># (J,)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Each mode propagated by its own exponential</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>psit <span class="op">=</span> torch.exp(t_eval[:, <span class="va">None</span>] <span class="op">*</span> lambdas) <span class="op">*</span> psi0  <span class="co"># (T, J)</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>pred_dyn <span class="op">=</span> psit <span class="op">@</span> v_star</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-fig-propagation" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Show plotting code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">4</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>plt.plot(t_eval, target_g(phit), label<span class="op">=</span><span class="st">"true dynamic: cos(Phi(t))"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>plt.plot(t_eval, pred_dyn, <span class="st">"--"</span>, label<span class="op">=</span><span class="st">"Koopman-predicted dynamic"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"t"</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Linear propagation of coefficients reconstructs the nonlinear dynamic"</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-propagation" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-propagation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="koopman-introduction_files/figure-html/fig-propagation-output-1.png" width="589" height="376" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-propagation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Propagating cos(Phi(t)) via the Koopman eigenbasis vs.&nbsp;the true dynamic.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The agreement (within the truncation error of using only <span class="math inline">\(J=5\)</span> basis functions) is the key payoff of the Koopman framework: a nonlinear flow on <span class="math inline">\(\Phi\)</span> becomes a finite set of independent exponentials on the coefficients <span class="math inline">\(\kv_j\)</span>.</p>
+</section>
+</section>
+<section id="discussion" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="discussion"><span class="header-section-number">1.4</span> Discussion</h2>
+<section id="why-cant-we-do-this-in-practice" class="level3" data-number="1.4.1">
+<h3 data-number="1.4.1" class="anchored" data-anchor-id="why-cant-we-do-this-in-practice"><span class="header-section-number">1.4.1</span> Why can’t we do this in practice ?</h3>
+<p>It seems like a cool way to approximate a physical model — why not apply it to nonlinear, high-dimensional dynamics ?</p>
+<p>First, we found the eigenfunctions in an arbitrary way by testing a few candidates; finding meaningful functions that respect linearity in high-dimensional settings is much harder, there might be no closed form for the function and the optimization over functional space is a hard task !</p>
+<p>Second, even if we find a set of eigenfunctions, they might not represent the observable of interest well : we need functions that truly capture the target signal.</p>
+<p>What’s interesting is the reasoning : eigenfunctions are specific to the dynamical system, but the basis we pick from that infinite family should be tailored to the target observable — a good basis depends on what we’re trying to observe.</p>
+</section>
+<section id="koopman-as-an-optimization-problem" class="level3" data-number="1.4.2">
+<h3 data-number="1.4.2" class="anchored" data-anchor-id="koopman-as-an-optimization-problem"><span class="header-section-number">1.4.2</span> Koopman as an optimization problem</h3>
+<p>Stepping back, the whole procedure above — search for eigenfunctions, then project a target observable onto them — can be seen as a single nested optimization:</p>
+<p><span class="math display">\[
+\begin{align}
+&amp;\{ \kpsi_j \} = \arg \min_{\kpsi_j} \left[ \min_{\kv}\; \int_t \Big(\kg\big(T(t, \phi_0)\big) - \sum_{j=0}^{J} \kv_j\, \kpsi_j\big(T(t, \phi_0)\big)\Big)^2 dt \right] \\
+&amp;\text{subject to} \quad \kpsi_j\big(T(t, \phi_0)\big) = e^{\klam_j (t - t_0)}\, \kpsi_j\big(T(t_0, \phi_0)\big)
+\end{align}
+\]</span></p>
+<p>In a next chapter we will see how this dual optimization procedure relate to koopman based data-driven methods !</p>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/etienne-meunier\.github\.io\/Blog");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Koopman Eigenfunctions — An Introduction"</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "From the flow of a dynamical system to a linear, infinite-dimensional operator"</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Etienne Meunier"</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> today</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: show</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">    include-in-header:</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">      text: |</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">        &lt;script&gt;</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co">        window.MathJax = {</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">          tex: {</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co">            macros: {</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="co">              kpsi: ["\\textcolor{#1f77b4}{\\psi}", 0],</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="co">              kPsi: ["\\textcolor{#1f77b4}{\\Psi}", 0],</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co">              klam: ["\\textcolor{#ff7f0e}{\\lambda}", 0],</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co">              kv: ["\\textcolor{#9467bd}{v}", 0],</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co">              kvb: ["\\textcolor{#9467bd}{\\mathbf{v}}", 0],</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co">              kg: ["\\textcolor{#2ca02c}{g}", 0]</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="co">            }</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co">          }</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="co">        };</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="co">        &lt;/script&gt;</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="fu"># Introduction : </span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="fu">## Dynamical system and its flow</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>Consider a (possibly nonlinear) dynamical system on the state $\Phi(t)$:</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>\frac{d\Phi(t)}{dt} = S(\Phi(t))</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>Integrating from an initial condition $\Phi_0$ defines the **flow** $T$:</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>T(\Phi_0, t) = \Phi_0 + \int_0^t S(\Phi(t'))\, dt' = \Phi(t)</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>$T$ maps an initial condition $\Phi_0$ and a time $t$ to the state reached at time $t$. It is, in general, nonlinear in $\Phi_0$ — that nonlinearity is exactly the difficulty Koopman theory is built to sidestep.</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a><span class="fu">## The Koopman operator</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>Instead of tracking the state $\Phi$ directly, Koopman theory tracks **observables** — scalar functions of the state. For every observable $\kg : \mathbb{R}^p \to \mathbb{R}$, there exists a linear operator $K^t : \mathcal{H} \to \mathcal{H}$ such that</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>K^t \kg(\Phi_0) = \kg\big(T(\Phi_0, t)\big)</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a><span class="fu">### Koopman eigenfunctions</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>Koopman eigenfunctions are *special observables* $\kPsi_j$ ($j = 1, 2, 3, \dots$) that are eigenfunctions of $K^t$ and thus verify : </span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>K^t \kPsi_j(\Phi_0) = e^{\klam_j t} \kPsi_j(\Phi_0)</span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>There could be an infinity of observables for a given dynamic, in practice we will restrict to $J$. </span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a><span class="fu">### Decomposing a general observable in this basis</span></span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>Any observable $\kg$ can be written as a (generally infinite) linear combination of the $\kPsi_j$:</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a>\kg(\Phi_0) = \sum_{j=0}^{\infty} \kv_j \kPsi_j(\Phi_0)</span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>Once $\kg$ is expressed in the eigenbasis we can use the eigenfunction property to propagate it forward in time as easily as multiplying each coefficient with an exponential factor :</span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>K^t \kg(\Phi_0) = \sum_j \kv_j K^t \kPsi_j(\Phi_0) = \sum_j \kv_j e^{\klam_j t} \kPsi_j(\Phi_0)</span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>Although in practice, finding a set of $\kPsi_j$ that respect the linearity constraint while allowing for a good reconstruction of any observable is not easy, that's what we are going to see in the next section !  </span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a><span class="fu">## Worked example: scalar linear ODE</span></span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>Take the simplest possible case:</span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a>\frac{d\Phi(t)}{dt} = \klam \Phi(t)</span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>\quad \Longrightarrow \quad</span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a>T(\Phi_0, t) = e^{\klam t} \Phi_0</span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>Let's first run it to get a ground-truth trajectory : </span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: imports</span></span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-summary: "Show imports"</span></span>
+<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchdiffeq <span class="im">import</span> odeint</span>
+<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a>lam <span class="op">=</span> <span class="op">-</span><span class="fl">0.7</span></span>
+<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a>phi0 <span class="op">=</span> torch.tensor(<span class="fl">1.3</span>)</span>
+<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a>t_span <span class="op">=</span> (<span class="fl">0.0</span>, <span class="fl">10.0</span>)</span>
+<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a>t_eval <span class="op">=</span> torch.linspace(t_span[<span class="dv">0</span>], t_span[<span class="dv">1</span>], <span class="dv">100</span>)</span>
+<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="kw">lambda</span> t, phi: lam <span class="op">*</span> phi</span>
+<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-118"><a href="#cb10-118" aria-hidden="true" tabindex="-1"></a>phit <span class="op">=</span> odeint(f, phi0, t_eval)  <span class="co"># true trajectory</span></span>
+<span id="cb10-119"><a href="#cb10-119" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a><span class="fu">### Koopman decompostion : the plan </span></span>
+<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a>**Step 1 :** From the simulated trajectory we find a set of functions that respect the linearity constraint</span>
+<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a>::: {.callout-note icon=false appearance="simple"}</span>
+<span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a><span class="sc">\{</span>\kpsi_j<span class="sc">\}</span>_{j=1}^{J} \quad \text{s.t.} \quad \kpsi_j\big(T(\phi_0, t)\big) = e^{\klam_j t}\, \kpsi_j(\phi_0)</span>
+<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-129"><a href="#cb10-129" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-131"><a href="#cb10-131" aria-hidden="true" tabindex="-1"></a>**Step 2 :** We express our observable function $\kg$ in this basis $\kPsi$ :</span>
+<span id="cb10-132"><a href="#cb10-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-133"><a href="#cb10-133" aria-hidden="true" tabindex="-1"></a>::: {.callout-note icon=false appearance="simple"}</span>
+<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-136"><a href="#cb10-136" aria-hidden="true" tabindex="-1"></a>\kv^\star = \arg\min_{\kv} \int_\phi \Big(\sum_{j=1}^{J} \kv_j\, \kpsi_j(\phi) - \kg(\phi)\Big)^2 d\phi</span>
+<span id="cb10-137"><a href="#cb10-137" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-138"><a href="#cb10-138" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a>**Step 3 :** from the initial observation $\kg(\phi_0)$ we can forecast :</span>
+<span id="cb10-141"><a href="#cb10-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-142"><a href="#cb10-142" aria-hidden="true" tabindex="-1"></a>::: {.callout-note icon=false appearance="simple"}</span>
+<span id="cb10-143"><a href="#cb10-143" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-144"><a href="#cb10-144" aria-hidden="true" tabindex="-1"></a>\kg(\phi_t) \approx \sum_{j=1}^{J} \kv_j\, e^{\klam_j t}\, \kpsi_j(\phi_0)</span>
+<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a><span class="fu">### Step 1 — search for eigenfunctions</span></span>
+<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a>Try a few candidate observables $\kg$ and check whether $K^t \kg(\Phi_0) = \kg(T(\Phi_0,t))$ matches a pure exponential $e^{\klam_j t} \kg(\Phi_0)$:</span>
+<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Candidate <span class="pp">|</span> Test <span class="pp">|</span> Eigenfunction? <span class="pp">|</span></span>
+<span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|:---:|</span></span>
+<span id="cb10-154"><a href="#cb10-154" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> $\kg_1(\Phi) = \Phi$ <span class="pp">|</span> $K^t \kg_1(\Phi_0) = \kg_1\big(e^{\klam t}\Phi_0\big) = e^{\klam t} \kg_1(\Phi_0)$ <span class="pp">|</span> ✓ <span class="pp">|</span></span>
+<span id="cb10-155"><a href="#cb10-155" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> $\kg_2(\Phi) = \Phi^2$ <span class="pp">|</span> $K^t \kg_2(\Phi_0) = \kg_2\big(e^{\klam t}\Phi_0\big) = e^{2\klam t}\Phi_0^2 = e^{2\klam t} \kg_2(\Phi_0)$ <span class="pp">|</span> ✓ <span class="pp">|</span></span>
+<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> $\kg_3(\Phi) = \sin(\Phi)$ <span class="pp">|</span> $K^t \kg_3(\Phi_0) = \kg_3\big(e^{\klam t}\Phi_0\big) \neq e^{\klam t} \kg_3(\Phi_0)$ <span class="pp">|</span> ✗ <span class="pp">|</span></span>
+<span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a>In general, $\kPsi_k(\Phi) = \Phi^k$ for $k \in \mathbb{N}$ are Koopman eigenfunctions of this dynamics, with eigenvalue $k\klam$. Not every observable is an eigenfunction — $\sin(\Phi)$ is the counter-example.</span>
+<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a>We can check this numerically: simulate the true trajectory, evaluate a candidate observable along it, and fit an exponential $\kg(\Phi(t)) = \kg(\Phi_0)\, e^{bt}$. If the candidate is a genuine eigenfunction, the fitted slopes $b$ at every time point should agree (low variance) and match the predicted eigenvalue.</span>
+<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: eigentest-compute</span></span>
+<span id="cb10-166"><a href="#cb10-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-167"><a href="#cb10-167" aria-hidden="true" tabindex="-1"></a><span class="co"># model: g(Phi(t)) = g(Phi0) * exp(b*t), with a = g(Phi0) fixed (known), so we only</span></span>
+<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a><span class="co"># fit the slope b of log(g(Phi(t)) / g(Phi0)) = b*t (line through origin). g(Phi(t))</span></span>
+<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a><span class="co"># and g(Phi0) share the same sign here (Phi(t) never crosses zero unless Phi0 = 0).</span></span>
+<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a>observables <span class="op">=</span> {</span>
+<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">$</span><span class="er">\</span><span class="vs">Phi</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">^</span><span class="vs">2</span><span class="dv">$</span><span class="vs">"</span>: <span class="kw">lambda</span> phi: phi <span class="op">**</span> <span class="dv">2</span>,</span>
+<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">$\s</span><span class="vs">in</span><span class="kw">(</span><span class="vs">5</span><span class="er">\</span><span class="vs">Phi</span><span class="kw">(</span><span class="vs">t</span><span class="kw">))</span><span class="op">+</span><span class="vs">1</span><span class="dv">$</span><span class="vs">"</span>: <span class="kw">lambda</span> phi: torch.sin(<span class="dv">5</span> <span class="op">*</span> phi) <span class="op">+</span> <span class="dv">1</span>,</span>
+<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-175"><a href="#cb10-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-176"><a href="#cb10-176" aria-hidden="true" tabindex="-1"></a>obs_fit <span class="op">=</span> {}</span>
+<span id="cb10-177"><a href="#cb10-177" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k, g <span class="kw">in</span> observables.items():</span>
+<span id="cb10-178"><a href="#cb10-178" aria-hidden="true" tabindex="-1"></a>    gt <span class="op">=</span> g(phit)</span>
+<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a>    lbds <span class="op">=</span> torch.log(gt[<span class="dv">1</span>:] <span class="op">/</span> gt[<span class="dv">0</span>]) <span class="op">/</span> t_eval[<span class="dv">1</span>:]            <span class="co"># per-timepoint lambda estimate</span></span>
+<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a>    fits_each <span class="op">=</span> gt[<span class="dv">0</span>] <span class="op">*</span> torch.exp(lbds[:, <span class="va">None</span>] <span class="op">*</span> t_eval)    <span class="co"># (n_lbds, T) - one exp fit per estimate</span></span>
+<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a>    fit_t <span class="op">=</span> gt[<span class="dv">0</span>] <span class="op">*</span> torch.exp(lbds.mean() <span class="op">*</span> t_eval)          <span class="co"># exp fit using the average lambda</span></span>
+<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a>    obs_fit[k] <span class="op">=</span> {<span class="st">"gt"</span>: gt, <span class="st">"fit_t"</span>: fit_t, <span class="st">"fits_each"</span>: fits_each, <span class="st">"lambda"</span>: lbds.mean(), <span class="st">"var"</span>: lbds.var()}</span>
+<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-eigentest</span></span>
+<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Testing candidate observables: $\\Phi(t)^2$ is a true eigenfunction (the faint per-timepoint exp fits collapse onto the average fit), $\\sin(5\\Phi(t))+1$ is not (the faint fits fan out)."</span></span>
+<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-summary: "Show plotting code"</span></span>
+<span id="cb10-192"><a href="#cb10-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="bu">len</span>(observables) <span class="op">+</span> <span class="dv">1</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">2.2</span> <span class="op">*</span> (<span class="bu">len</span>(observables) <span class="op">+</span> <span class="dv">1</span>)), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-194"><a href="#cb10-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-195"><a href="#cb10-195" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].plot(t_eval, phit, color<span class="op">=</span><span class="st">"black"</span>)</span>
+<span id="cb10-196"><a href="#cb10-196" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="er">\</span><span class="vs">Phi</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb10-197"><a href="#cb10-197" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Simulated trajectory"</span>)</span>
+<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, (label, d) <span class="kw">in</span> <span class="bu">zip</span>(axes[<span class="dv">1</span>:], obs_fit.items()):</span>
+<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a>    ax.plot(t_eval, d[<span class="st">"fits_each"</span>].T, color<span class="op">=</span><span class="st">"C1"</span>, alpha<span class="op">=</span><span class="fl">0.05</span>)</span>
+<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a>    ax.plot(t_eval, d[<span class="st">"gt"</span>], label<span class="op">=</span><span class="st">"observable"</span>)</span>
+<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a>    ax.plot(t_eval, d[<span class="st">"fit_t"</span>], <span class="st">"--"</span>, color<span class="op">=</span><span class="st">"C1"</span>, label<span class="op">=</span><span class="ss">f"exp fit (b=</span><span class="sc">{</span>d[<span class="st">'lambda'</span>]<span class="sc">:.2f}</span><span class="ss">, var=</span><span class="sc">{</span>d[<span class="st">'var'</span>]<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb10-203"><a href="#cb10-203" aria-hidden="true" tabindex="-1"></a>    y_lo <span class="op">=</span> torch.minimum(d[<span class="st">"gt"</span>].<span class="bu">min</span>(), d[<span class="st">"fit_t"</span>].<span class="bu">min</span>())</span>
+<span id="cb10-204"><a href="#cb10-204" aria-hidden="true" tabindex="-1"></a>    y_hi <span class="op">=</span> torch.maximum(d[<span class="st">"gt"</span>].<span class="bu">max</span>(), d[<span class="st">"fit_t"</span>].<span class="bu">max</span>())</span>
+<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a>    margin <span class="op">=</span> <span class="fl">0.1</span> <span class="op">*</span> (y_hi <span class="op">-</span> y_lo)</span>
+<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a>    ax.set_ylim((y_lo <span class="op">-</span> margin).item(), (y_hi <span class="op">+</span> margin).item())</span>
+<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(label)</span>
+<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a>    ax.legend(loc<span class="op">=</span><span class="st">"upper right"</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].set_xlabel(<span class="st">"t"</span>)</span>
+<span id="cb10-211"><a href="#cb10-211" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb10-212"><a href="#cb10-212" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-214"><a href="#cb10-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-215"><a href="#cb10-215" aria-hidden="true" tabindex="-1"></a>In this simple case we figure out that $\kpsi_j(T(t, \phi)) = e^{j\klam t} \kpsi_j(\phi)\ \forall j \in \mathbb{N}$ and thus they are all eigenfunctions with eigenvalues $j\klam$.</span>
+<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-219"><a href="#cb10-219" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-220"><a href="#cb10-220" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: basis-setup</span></span>
+<span id="cb10-221"><a href="#cb10-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-222"><a href="#cb10-222" aria-hidden="true" tabindex="-1"></a>J <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb10-223"><a href="#cb10-223" aria-hidden="true" tabindex="-1"></a>Psi <span class="op">=</span> <span class="kw">lambda</span> x: torch.stack([x <span class="op">**</span> k <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, J)], dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb10-224"><a href="#cb10-224" aria-hidden="true" tabindex="-1"></a>lambdas <span class="op">=</span> torch.tensor([k <span class="op">*</span> lam <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(J)])</span>
+<span id="cb10-225"><a href="#cb10-225" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-226"><a href="#cb10-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-227"><a href="#cb10-227" aria-hidden="true" tabindex="-1"></a><span class="fu">### Step 2 — decompose a general observable in this eigenbasis</span></span>
+<span id="cb10-228"><a href="#cb10-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-229"><a href="#cb10-229" aria-hidden="true" tabindex="-1"></a>Take $\kg(\Phi) = \cos(\Phi)$, which is *not* itself an eigenfunction. The goal is to express it as</span>
+<span id="cb10-230"><a href="#cb10-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-231"><a href="#cb10-231" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-232"><a href="#cb10-232" aria-hidden="true" tabindex="-1"></a>\kg(\Phi) = \sum_{j=0}^{J} \kv_j \kpsi_j(\Phi) \qquad \forall\, \Phi \in \mathbb{R}</span>
+<span id="cb10-233"><a href="#cb10-233" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-234"><a href="#cb10-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-235"><a href="#cb10-235" aria-hidden="true" tabindex="-1"></a><span class="fu">#### General projection</span></span>
+<span id="cb10-236"><a href="#cb10-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-237"><a href="#cb10-237" aria-hidden="true" tabindex="-1"></a>This amounts to projecting $\kg$ onto the basis of eigenfunctions, which can be done by least squares:</span>
+<span id="cb10-238"><a href="#cb10-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-239"><a href="#cb10-239" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-240"><a href="#cb10-240" aria-hidden="true" tabindex="-1"></a>\kvb = \arg \min_{\kvb} \int_{\phi} \Big(\sum_{j=0}^{J} \kv_j \kpsi_j(\phi) - \kg(\phi)\Big)^2 d\phi</span>
+<span id="cb10-241"><a href="#cb10-241" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-242"><a href="#cb10-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-243"><a href="#cb10-243" aria-hidden="true" tabindex="-1"></a>Since the only unknowns are in $\kvb$, this is a convex problem whenever the $\kpsi_j$ are linearly independent:</span>
+<span id="cb10-244"><a href="#cb10-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-245"><a href="#cb10-245" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-246"><a href="#cb10-246" aria-hidden="true" tabindex="-1"></a>\begin{align}</span>
+<span id="cb10-247"><a href="#cb10-247" aria-hidden="true" tabindex="-1"></a>\kvb &amp;= \arg \min_{\kvb} \int_{\phi} \big(\mathbf{\kPsi}(\phi) \cdot \kv - \kg(\phi)\big)^2 d\phi<span class="sc">\\</span><span class="co">[</span><span class="ot">4pt</span><span class="co">]</span></span>
+<span id="cb10-248"><a href="#cb10-248" aria-hidden="true" tabindex="-1"></a>&amp;\int_\phi \mathbf{\kPsi}(\phi)^T\big(\mathbf{\kPsi}(\phi) \cdot \kv^\star - \kg(\phi)\big)\, d\phi \triangleq 0<span class="sc">\\</span><span class="co">[</span><span class="ot">4pt</span><span class="co">]</span></span>
+<span id="cb10-249"><a href="#cb10-249" aria-hidden="true" tabindex="-1"></a>\kv^\star &amp;= \Big<span class="co">[</span><span class="ot">\int_\phi \mathbf{\kPsi}(\phi)^T\mathbf{\kPsi}(\phi)\, d\phi\Big</span><span class="co">]</span>^{-1} \cdot \Big<span class="co">[</span><span class="ot">\int_\phi \mathbf{\kPsi}(\phi)\, \kg(\phi)\, d\phi\Big</span><span class="co">]</span></span>
+<span id="cb10-250"><a href="#cb10-250" aria-hidden="true" tabindex="-1"></a>\end{align}</span>
+<span id="cb10-251"><a href="#cb10-251" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-252"><a href="#cb10-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-253"><a href="#cb10-253" aria-hidden="true" tabindex="-1"></a>The integrals can be approximated by sample expectations over $\phi$ : </span>
+<span id="cb10-254"><a href="#cb10-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-255"><a href="#cb10-255" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb10-256"><a href="#cb10-256" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Specific projection for this case</span></span>
+<span id="cb10-257"><a href="#cb10-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-258"><a href="#cb10-258" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb10-259"><a href="#cb10-259" aria-hidden="true" tabindex="-1"></a><span class="fu">##### Reminder: Taylor expansion of a scalar function (centered at a point $a$)</span></span>
+<span id="cb10-260"><a href="#cb10-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-261"><a href="#cb10-261" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-262"><a href="#cb10-262" aria-hidden="true" tabindex="-1"></a>f(x) = f(a) + (x-a) f'(a) + \frac{(x-a)^2}{2!} f''(a) + \dots</span>
+<span id="cb10-263"><a href="#cb10-263" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-264"><a href="#cb10-264" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-265"><a href="#cb10-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-266"><a href="#cb10-266" aria-hidden="true" tabindex="-1"></a>Because $\kPsi_j(\Phi) = \Phi^j$ is a polynomial basis, we could alternatively use the ordinary Taylor (Maclaurin) series of $\cos$ centered at $a=0$:</span>
+<span id="cb10-267"><a href="#cb10-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-268"><a href="#cb10-268" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-269"><a href="#cb10-269" aria-hidden="true" tabindex="-1"></a>\cos(\Phi_0) = \sum_{j=0}^{\infty} \frac{\cos^{(j)}(0)}{j!} \Phi_0^j</span>
+<span id="cb10-270"><a href="#cb10-270" aria-hidden="true" tabindex="-1"></a>\qquad \Rightarrow \qquad \kv_j = \frac{\cos^{(j)}(0)}{j!}</span>
+<span id="cb10-271"><a href="#cb10-271" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-272"><a href="#cb10-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-273"><a href="#cb10-273" aria-hidden="true" tabindex="-1"></a>This shortcut only works because the eigenbasis happens to coincide with a power series basis; the general least-squares projection above works regardless of the basis.</span>
+<span id="cb10-274"><a href="#cb10-274" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-275"><a href="#cb10-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-278"><a href="#cb10-278" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-279"><a href="#cb10-279" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: projection-compute</span></span>
+<span id="cb10-280"><a href="#cb10-280" aria-hidden="true" tabindex="-1"></a>target_g <span class="op">=</span> <span class="kw">lambda</span> phi: torch.cos(phi)</span>
+<span id="cb10-281"><a href="#cb10-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-282"><a href="#cb10-282" aria-hidden="true" tabindex="-1"></a>phis <span class="op">=</span> torch.rand(<span class="dv">10</span>) <span class="op">*</span> <span class="fl">2.0</span>          <span class="co"># (10,) sample points</span></span>
+<span id="cb10-283"><a href="#cb10-283" aria-hidden="true" tabindex="-1"></a>psi_phi <span class="op">=</span> Psi(phis)                  <span class="co"># (10, J)</span></span>
+<span id="cb10-284"><a href="#cb10-284" aria-hidden="true" tabindex="-1"></a>E <span class="op">=</span> psi_phi.T <span class="op">@</span> psi_phi               <span class="co"># (J, J) Gram matrix</span></span>
+<span id="cb10-285"><a href="#cb10-285" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> psi_phi.T <span class="op">@</span> target_g(phis)        <span class="co"># (J,)</span></span>
+<span id="cb10-286"><a href="#cb10-286" aria-hidden="true" tabindex="-1"></a>v_star <span class="op">=</span> torch.linalg.pinv(E) <span class="op">@</span> C     <span class="co"># least-squares coefficients</span></span>
+<span id="cb10-287"><a href="#cb10-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-288"><a href="#cb10-288" aria-hidden="true" tabindex="-1"></a>pred_g <span class="op">=</span> <span class="kw">lambda</span> x: Psi(x) <span class="op">@</span> v_star</span>
+<span id="cb10-289"><a href="#cb10-289" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-290"><a href="#cb10-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-293"><a href="#cb10-293" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-294"><a href="#cb10-294" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-projection</span></span>
+<span id="cb10-295"><a href="#cb10-295" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Projecting g(phi) = cos(phi) onto the polynomial eigenbasis {phi^0, ..., phi^(J-1)} via least squares."</span></span>
+<span id="cb10-296"><a href="#cb10-296" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-297"><a href="#cb10-297" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-summary: "Show plotting code"</span></span>
+<span id="cb10-298"><a href="#cb10-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-299"><a href="#cb10-299" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> torch.linspace(<span class="dv">0</span>, <span class="dv">4</span>, <span class="dv">100</span>)</span>
+<span id="cb10-300"><a href="#cb10-300" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb10-301"><a href="#cb10-301" aria-hidden="true" tabindex="-1"></a>plt.plot(xs, target_g(xs), label<span class="op">=</span><span class="st">"true g"</span>)</span>
+<span id="cb10-302"><a href="#cb10-302" aria-hidden="true" tabindex="-1"></a>plt.plot(xs, pred_g(xs), label<span class="op">=</span><span class="st">"g expressed in basis"</span>)</span>
+<span id="cb10-303"><a href="#cb10-303" aria-hidden="true" tabindex="-1"></a>plt.scatter(phis, target_g(phis), color<span class="op">=</span><span class="st">"black"</span>, s<span class="op">=</span><span class="dv">15</span>, zorder<span class="op">=</span><span class="dv">5</span>, label<span class="op">=</span><span class="st">"fit points"</span>)</span>
+<span id="cb10-304"><a href="#cb10-304" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="er">\</span><span class="vs">Phi</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb10-305"><a href="#cb10-305" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb10-306"><a href="#cb10-306" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="vs">r"Projection of </span><span class="dv">$</span><span class="er">\</span><span class="vs">cos</span><span class="kw">(</span><span class="er">\</span><span class="vs">Phi</span><span class="kw">)</span><span class="dv">$</span><span class="vs"> onto </span><span class="dv">$</span><span class="ch">\{</span><span class="er">\</span><span class="vs">Phi</span><span class="dv">^</span><span class="vs">j</span><span class="ch">\}</span><span class="vs">_{j=0}</span><span class="dv">^</span><span class="vs">{J-1}</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb10-307"><a href="#cb10-307" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-308"><a href="#cb10-308" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-309"><a href="#cb10-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-310"><a href="#cb10-310" aria-hidden="true" tabindex="-1"></a><span class="fu">### Step 3 — propagate</span></span>
+<span id="cb10-311"><a href="#cb10-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-312"><a href="#cb10-312" aria-hidden="true" tabindex="-1"></a>Now that $\kg$ is expressed in the basis of eigenfunctions for *any* $\Phi$ (Step 2), we can apply that same identity at $\Phi(t) = T(\Phi_0, t)$ and use the eigenfunction property to propagate the signal in this space :</span>
+<span id="cb10-313"><a href="#cb10-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-314"><a href="#cb10-314" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-315"><a href="#cb10-315" aria-hidden="true" tabindex="-1"></a>\kg\big(\Phi(t)\big) = \sum_{j=0}^{\infty} \kv_j \kpsi_j\big(\Phi(t)\big) = \sum_{j=0}^{\infty} \kv_j \kpsi_j\big(T(\Phi_0, t)\big) \overset{\text{eig.}}{=} \sum_{j=0}^{\infty} \kv_j\, e^{\klam_j t}\, \kpsi_j(\Phi_0)</span>
+<span id="cb10-316"><a href="#cb10-316" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-317"><a href="#cb10-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-318"><a href="#cb10-318" aria-hidden="true" tabindex="-1"></a>In practice $j$ is finite, so this is an approximation !</span>
+<span id="cb10-319"><a href="#cb10-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-322"><a href="#cb10-322" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-323"><a href="#cb10-323" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: propagation-compute</span></span>
+<span id="cb10-324"><a href="#cb10-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-325"><a href="#cb10-325" aria-hidden="true" tabindex="-1"></a><span class="co"># Decompose initial state to the modes we found</span></span>
+<span id="cb10-326"><a href="#cb10-326" aria-hidden="true" tabindex="-1"></a>psi0 <span class="op">=</span> Psi(phi0)                                  <span class="co"># (J,)</span></span>
+<span id="cb10-327"><a href="#cb10-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-328"><a href="#cb10-328" aria-hidden="true" tabindex="-1"></a><span class="co">#Each mode propagated by its own exponential</span></span>
+<span id="cb10-329"><a href="#cb10-329" aria-hidden="true" tabindex="-1"></a>psit <span class="op">=</span> torch.exp(t_eval[:, <span class="va">None</span>] <span class="op">*</span> lambdas) <span class="op">*</span> psi0  <span class="co"># (T, J)</span></span>
+<span id="cb10-330"><a href="#cb10-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-331"><a href="#cb10-331" aria-hidden="true" tabindex="-1"></a>pred_dyn <span class="op">=</span> psit <span class="op">@</span> v_star</span>
+<span id="cb10-332"><a href="#cb10-332" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-333"><a href="#cb10-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-336"><a href="#cb10-336" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-337"><a href="#cb10-337" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-propagation</span></span>
+<span id="cb10-338"><a href="#cb10-338" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Propagating cos(Phi(t)) via the Koopman eigenbasis vs. the true dynamic."</span></span>
+<span id="cb10-339"><a href="#cb10-339" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-340"><a href="#cb10-340" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-summary: "Show plotting code"</span></span>
+<span id="cb10-341"><a href="#cb10-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-342"><a href="#cb10-342" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">4</span>))</span>
+<span id="cb10-343"><a href="#cb10-343" aria-hidden="true" tabindex="-1"></a>plt.plot(t_eval, target_g(phit), label<span class="op">=</span><span class="st">"true dynamic: cos(Phi(t))"</span>)</span>
+<span id="cb10-344"><a href="#cb10-344" aria-hidden="true" tabindex="-1"></a>plt.plot(t_eval, pred_dyn, <span class="st">"--"</span>, label<span class="op">=</span><span class="st">"Koopman-predicted dynamic"</span>)</span>
+<span id="cb10-345"><a href="#cb10-345" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"t"</span>)</span>
+<span id="cb10-346"><a href="#cb10-346" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb10-347"><a href="#cb10-347" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Linear propagation of coefficients reconstructs the nonlinear dynamic"</span>)</span>
+<span id="cb10-348"><a href="#cb10-348" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-349"><a href="#cb10-349" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-350"><a href="#cb10-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-351"><a href="#cb10-351" aria-hidden="true" tabindex="-1"></a>The agreement (within the truncation error of using only $J=5$ basis functions) is the key payoff of the Koopman framework: a nonlinear flow on $\Phi$ becomes a finite set of independent exponentials on the coefficients $\kv_j$.</span>
+<span id="cb10-352"><a href="#cb10-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-353"><a href="#cb10-353" aria-hidden="true" tabindex="-1"></a><span class="fu">## Discussion</span></span>
+<span id="cb10-354"><a href="#cb10-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-355"><a href="#cb10-355" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why can't we do this in practice ?</span></span>
+<span id="cb10-356"><a href="#cb10-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-357"><a href="#cb10-357" aria-hidden="true" tabindex="-1"></a>It seems like a cool way to approximate a physical model — why not apply it to nonlinear, high-dimensional dynamics ?</span>
+<span id="cb10-358"><a href="#cb10-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-359"><a href="#cb10-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-360"><a href="#cb10-360" aria-hidden="true" tabindex="-1"></a>First, we found the eigenfunctions in an arbitrary way by testing a few candidates; finding meaningful functions that respect linearity in high-dimensional settings is much harder, there might be no closed form for the function and the optimization over functional space is a hard task !</span>
+<span id="cb10-361"><a href="#cb10-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-362"><a href="#cb10-362" aria-hidden="true" tabindex="-1"></a>Second, even if we find a set of eigenfunctions, they might not represent the observable of interest well : we need functions that truly capture the target signal.</span>
+<span id="cb10-363"><a href="#cb10-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-364"><a href="#cb10-364" aria-hidden="true" tabindex="-1"></a>What's interesting is the reasoning : eigenfunctions are specific to the dynamical system, but the basis we pick from that infinite family should be tailored to the target observable — a good basis depends on what we're trying to observe.</span>
+<span id="cb10-365"><a href="#cb10-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-366"><a href="#cb10-366" aria-hidden="true" tabindex="-1"></a><span class="fu">### Koopman as an optimization problem</span></span>
+<span id="cb10-367"><a href="#cb10-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-368"><a href="#cb10-368" aria-hidden="true" tabindex="-1"></a>Stepping back, the whole procedure above — search for eigenfunctions, then project a target observable onto them — can be seen as a single nested optimization:</span>
+<span id="cb10-369"><a href="#cb10-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-370"><a href="#cb10-370" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-371"><a href="#cb10-371" aria-hidden="true" tabindex="-1"></a>\begin{align}</span>
+<span id="cb10-372"><a href="#cb10-372" aria-hidden="true" tabindex="-1"></a>&amp;<span class="sc">\{</span> \kpsi_j <span class="sc">\}</span> = \arg \min_{\kpsi_j} \left<span class="co">[</span><span class="ot"> \min_{\kv}\; \int_t \Big(\kg\big(T(t, \phi_0)\big) - \sum_{j=0}^{J} \kv_j\, \kpsi_j\big(T(t, \phi_0)\big)\Big)^2 dt \right</span><span class="co">]</span> <span class="sc">\\</span></span>
+<span id="cb10-373"><a href="#cb10-373" aria-hidden="true" tabindex="-1"></a>&amp;\text{subject to} \quad \kpsi_j\big(T(t, \phi_0)\big) = e^{\klam_j (t - t_0)}\, \kpsi_j\big(T(t_0, \phi_0)\big)</span>
+<span id="cb10-374"><a href="#cb10-374" aria-hidden="true" tabindex="-1"></a>\end{align}</span>
+<span id="cb10-375"><a href="#cb10-375" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-376"><a href="#cb10-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-377"><a href="#cb10-377" aria-hidden="true" tabindex="-1"></a>In a next chapter we will see how this dual optimization procedure relate to koopman based data-driven methods !</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

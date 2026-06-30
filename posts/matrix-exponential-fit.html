@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Etienne Meunier">
+<meta name="dcterms.date" content="2026-06-30">
+
+<title>Learning Linear Dynamics – Etienne Meunier</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-214082c51f5f1f6ff5cef209e4f9c7c6.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Etienne Meunier</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-inverse-problem" id="toc-the-inverse-problem" class="nav-link active" data-scroll-target="#the-inverse-problem">The inverse problem</a>
+  <ul class="collapse">
+  <li><a href="#ground-truth" id="toc-ground-truth" class="nav-link" data-scroll-target="#ground-truth">Ground truth</a></li>
+  </ul></li>
+  <li><a href="#approach-1-gradient-descent-on-matrix-exponential" id="toc-approach-1-gradient-descent-on-matrix-exponential" class="nav-link" data-scroll-target="#approach-1-gradient-descent-on-matrix-exponential">Approach 1 — Gradient descent on matrix exponential</a>
+  <ul class="collapse">
+  <li><a href="#idea" id="toc-idea" class="nav-link" data-scroll-target="#idea">Idea</a></li>
+  <li><a href="#code" id="toc-code" class="nav-link" data-scroll-target="#code">Code</a></li>
+  </ul></li>
+  <li><a href="#approach-2-neural-ode" id="toc-approach-2-neural-ode" class="nav-link" data-scroll-target="#approach-2-neural-ode">Approach 2 — Neural ODE</a>
+  <ul class="collapse">
+  <li><a href="#idea-1" id="toc-idea-1" class="nav-link" data-scroll-target="#idea-1">Idea</a></li>
+  <li><a href="#code-1" id="toc-code-1" class="nav-link" data-scroll-target="#code-1">Code</a></li>
+  </ul></li>
+  <li><a href="#approach-3-derivative-matching" id="toc-approach-3-derivative-matching" class="nav-link" data-scroll-target="#approach-3-derivative-matching">Approach 3 — Derivative matching</a>
+  <ul class="collapse">
+  <li><a href="#idea-2" id="toc-idea-2" class="nav-link" data-scroll-target="#idea-2">Idea</a></li>
+  <li><a href="#code-2" id="toc-code-2" class="nav-link" data-scroll-target="#code-2">Code</a></li>
+  </ul></li>
+  <li><a href="#approach-4-matrix-logarithm" id="toc-approach-4-matrix-logarithm" class="nav-link" data-scroll-target="#approach-4-matrix-logarithm">Approach 4 — Matrix logarithm</a>
+  <ul class="collapse">
+  <li><a href="#idea-3" id="toc-idea-3" class="nav-link" data-scroll-target="#idea-3">Idea</a></li>
+  <li><a href="#code-3" id="toc-code-3" class="nav-link" data-scroll-target="#code-3">Code</a></li>
+  <li><a href="#approach-5-find-the-closest-diagonal-dynamic" id="toc-approach-5-find-the-closest-diagonal-dynamic" class="nav-link" data-scroll-target="#approach-5-find-the-closest-diagonal-dynamic">Approach 5 : find the closest diagonal dynamic</a></li>
+  </ul></li>
+  <li><a href="#comparing-approaches" id="toc-comparing-approaches" class="nav-link" data-scroll-target="#comparing-approaches">Comparing approaches</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Learning Linear Dynamics</h1>
+<p class="subtitle lead">Four ways to recover A from observations of z(t) = exp(At)z₀</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Etienne Meunier </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 30, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="the-inverse-problem" class="level1">
+<h1>The inverse problem</h1>
+<p>In the <a href="matrix-exponential.html">previous post</a> we studied how to <em>evaluate</em> <span class="math inline">\(e^{At}z_0\)</span> efficiently. Here we flip the question:</p>
+<blockquote class="blockquote">
+<p>Given observations <span class="math inline">\(z(t_1), \ldots, z(t_n)\)</span> of a trajectory driven by <span class="math inline">\(\dot{z} = Az\)</span>, recover the matrix <span class="math inline">\(A\)</span>.</p>
+</blockquote>
+<p>This is the core sub-problem in system identification, Koopman operator learning, and physics-informed machine learning. We compare four approaches that differ in their data requirements, computational cost, and sensitivity to noise.</p>
+<section id="ground-truth" class="level2">
+<h2 class="anchored" data-anchor-id="ground-truth">Ground truth</h2>
+<p>We use a <strong>stable node</strong> with off-diagonal coupling as the true system and observe the trajectory at <span class="math inline">\(n = 4\)</span> uniformly-spaced time points. The eigenvalues are <span class="math inline">\(-0.1\)</span> and <span class="math inline">\(-1\)</span> — real, stable, with well-separated time scales.</p>
+<p><span class="math display">\[A = \begin{pmatrix}-0.4 &amp; 0.6 \\ 0.3 &amp; -0.7\end{pmatrix}, \quad z_0 = \begin{pmatrix}1 \\ 1.5\end{pmatrix}\]</span></p>
+<div id="979e87a4" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>imports</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchdiffeq <span class="im">import</span> odeint</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tqdm <span class="im">import</span> tqdm</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.interpolate <span class="im">import</span> CubicSpline</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.linalg <span class="im">import</span> logm</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>plt.rcParams.update({</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'figure.dpi'</span>: <span class="dv">110</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'axes.grid'</span>: <span class="va">True</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'grid.alpha'</span>: <span class="fl">0.25</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'axes.spines.top'</span>: <span class="va">False</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'axes.spines.right'</span>: <span class="va">False</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'font.size'</span>: <span class="dv">10</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="650d7e95" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> torch.tensor([[<span class="op">-</span><span class="fl">0.4</span>,  <span class="fl">0.6</span>],</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                   [ <span class="fl">0.3</span>, <span class="op">-</span><span class="fl">0.7</span>]], dtype<span class="op">=</span>torch.float64)   <span class="co"># stable node, eigs = -0.1, -1.0</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate true points</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>T_gt, dt_gt <span class="op">=</span> <span class="fl">2.0</span>, <span class="fl">0.5</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>z0 <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">1.5</span>], dtype<span class="op">=</span>torch.float64)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>t_gt <span class="op">=</span> torch.linspace(<span class="dv">0</span>, T_gt, <span class="bu">int</span>(T_gt<span class="op">//</span>dt_gt))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>z_gt <span class="op">=</span> torch.matrix_exp(A[<span class="va">None</span>]<span class="op">*</span>t_gt[:, <span class="va">None</span>, <span class="va">None</span>])<span class="op">@</span>z0</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="b1592fb8" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>plotting helpers</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _streamplot(ax, M, color, alpha<span class="op">=</span><span class="fl">0.45</span>, density<span class="op">=</span><span class="fl">0.9</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                xlim<span class="op">=</span>(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1.7</span>), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">0.2</span>, <span class="fl">1.9</span>), n_grid<span class="op">=</span><span class="dv">20</span>):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    M_np <span class="op">=</span> M.real.detach().numpy() <span class="cf">if</span> torch.is_complex(M) <span class="cf">else</span> M.detach().numpy()</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    xs <span class="op">=</span> np.linspace(<span class="op">*</span>xlim, n_grid)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    ys <span class="op">=</span> np.linspace(<span class="op">*</span>ylim, n_grid)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    X, Y <span class="op">=</span> np.meshgrid(xs, ys)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    pts <span class="op">=</span> np.stack([X.ravel(), Y.ravel()], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    UV <span class="op">=</span> pts <span class="op">@</span> M_np.T</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    sp <span class="op">=</span> ax.streamplot(xs, ys,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                       UV[:, <span class="dv">0</span>].reshape(n_grid, n_grid),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>                       UV[:, <span class="dv">1</span>].reshape(n_grid, n_grid),</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                       density<span class="op">=</span>density, color<span class="op">=</span>color,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>                       linewidth<span class="op">=</span><span class="fl">0.7</span>, arrowsize<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    sp.lines.set_alpha(alpha)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    sp.arrows.set_alpha(alpha)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(xlim)<span class="op">;</span> ax.set_ylim(ylim)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    ax.set_aspect(<span class="st">'equal'</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, lw<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'k'</span>, lw<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_results(metrics, B, z_pred, z_gt, t_gt, title<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    has_metrics <span class="op">=</span> <span class="bu">isinstance</span>(metrics, <span class="bu">list</span>) <span class="kw">and</span> <span class="bu">len</span>(metrics) <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    ncols <span class="op">=</span> <span class="dv">3</span> <span class="cf">if</span> has_metrics <span class="cf">else</span> <span class="dv">2</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, ncols, figsize<span class="op">=</span>(<span class="dv">3</span> <span class="op">*</span> ncols, <span class="fl">3.5</span>))</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> title:</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        fig.suptitle(title, fontsize<span class="op">=</span><span class="dv">12</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    col <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># training metrics (gradient-based approaches only)</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> has_metrics:</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        ax <span class="op">=</span> axes[col]<span class="op">;</span> col <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>        c1, c2 <span class="op">=</span> <span class="st">'tab:green'</span>, <span class="st">'tab:purple'</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        ax.plot([l[<span class="st">'loss'</span>] <span class="cf">for</span> l <span class="kw">in</span> metrics], color<span class="op">=</span>c1)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>        ax.set_xlabel(<span class="st">'Epoch'</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">'Loss'</span>, color<span class="op">=</span>c1)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>        ax.tick_params(axis<span class="op">=</span><span class="st">'y'</span>, labelcolor<span class="op">=</span>c1)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>        ax2 <span class="op">=</span> ax.twinx()</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        ax2.plot([l[<span class="st">'forb'</span>] <span class="cf">for</span> l <span class="kw">in</span> metrics], color<span class="op">=</span>c2)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        ax2.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="ch">\|</span><span class="vs">A - B</span><span class="ch">\|</span><span class="vs">_F</span><span class="dv">^</span><span class="vs">2</span><span class="dv">$</span><span class="vs">'</span>, color<span class="op">=</span>c2)</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        ax2.tick_params(axis<span class="op">=</span><span class="st">'y'</span>, labelcolor<span class="op">=</span>c2)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="st">'Training metrics'</span>)</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="co"># trajectory comparison</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> axes[col]<span class="op">;</span> col <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    t_np <span class="op">=</span> t_gt.numpy()</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    ax.scatter(t_np, z_gt[:, <span class="dv">0</span>].detach(), color<span class="op">=</span><span class="st">'tab:blue'</span>,   s<span class="op">=</span><span class="dv">55</span>, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">'$z_1$ gt'</span>)</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    ax.scatter(t_np, z_gt[:, <span class="dv">1</span>].detach(), color<span class="op">=</span><span class="st">'tab:orange'</span>, s<span class="op">=</span><span class="dv">55</span>, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">'$z_2$ gt'</span>)</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    ax.plot(t_np, z_pred[:, <span class="dv">0</span>].detach(), color<span class="op">=</span><span class="st">'tab:blue'</span>,   ls<span class="op">=</span><span class="st">'--'</span>, lw<span class="op">=</span><span class="fl">1.8</span>, label<span class="op">=</span><span class="st">'$z_1$ pred'</span>)</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    ax.plot(t_np, z_pred[:, <span class="dv">1</span>].detach(), color<span class="op">=</span><span class="st">'tab:orange'</span>, ls<span class="op">=</span><span class="st">'--'</span>, lw<span class="op">=</span><span class="fl">1.8</span>, label<span class="op">=</span><span class="st">'$z_2$ pred'</span>)</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">'$t$'</span>)<span class="op">;</span> ax.set_title(<span class="st">'Trajectory'</span>)</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    ax.legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">'best'</span>)</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    <span class="co"># phase portrait: true A (grey) vs fitted B (red)</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> axes[col]</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    _streamplot(ax, A, color<span class="op">=</span><span class="st">'#aaaaaa'</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    _streamplot(ax, B, color<span class="op">=</span><span class="st">'tab:red'</span>,  alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    t_fine <span class="op">=</span> torch.linspace(<span class="dv">0</span>, T_gt, <span class="dv">300</span>, dtype<span class="op">=</span>torch.float64)</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    B_safe <span class="op">=</span> B.real <span class="cf">if</span> torch.is_complex(B) <span class="cf">else</span> B</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>        z_true_fine <span class="op">=</span> odeint(<span class="kw">lambda</span> t, x: A       <span class="op">@</span> x, z0, t_fine).numpy()</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>        z_pred_fine <span class="op">=</span> odeint(<span class="kw">lambda</span> t, x: B_safe  <span class="op">@</span> x, z0, t_fine).numpy()</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    ax.plot(z_true_fine[:, <span class="dv">0</span>], z_true_fine[:, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#444444'</span>, lw<span class="op">=</span><span class="fl">1.8</span>, label<span class="op">=</span><span class="st">'true $A$'</span>)</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    ax.plot(z_pred_fine[:, <span class="dv">0</span>], z_pred_fine[:, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'royalblue'</span>, ls<span class="op">=</span><span class="st">'--'</span>, lw<span class="op">=</span><span class="fl">1.8</span>, label<span class="op">=</span><span class="st">'fitted $B$'</span>)</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    ax.scatter(<span class="op">*</span>z0.numpy(), color<span class="op">=</span><span class="st">'k'</span>, s<span class="op">=</span><span class="dv">60</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="st">'Phase portrait'</span>)<span class="op">;</span> ax.legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+</section>
+<section id="approach-1-gradient-descent-on-matrix-exponential" class="level1">
+<h1>Approach 1 — Gradient descent on matrix exponential</h1>
+<section id="idea" class="level2">
+<h2 class="anchored" data-anchor-id="idea">Idea</h2>
+<p>Directly optimise <span class="math inline">\(B \in \mathbb{R}^{p \times p}\)</span> to minimise the squared error at every observed time:</p>
+<p><span class="math display">\[\mathcal{L}(B) = \sum_{i=1}^{n} \left\| e^{B t_i} z_0 - z(t_i) \right\|^2\]</span></p>
+<p>Gradients flow through <code>torch.matrix_exp</code> (which uses a Padé approximation internally). No structure is imposed on <span class="math inline">\(B\)</span> — stability, symmetry, sparsity are unconstrained.</p>
+<p><strong>Data requirement:</strong> a single trajectory.</p>
+</section>
+<section id="code" class="level2">
+<h2 class="anchored" data-anchor-id="code">Code</h2>
+<div id="3a1701f1" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> torch.randn((<span class="dv">2</span>,<span class="dv">2</span>), dtype<span class="op">=</span>torch.float64, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.SGD([B], lr<span class="op">=</span><span class="fl">0.005</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> step() :</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    opt.zero_grad()</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    z_pred <span class="op">=</span> torch.matrix_exp(B[<span class="va">None</span>]<span class="op">*</span>t_gt[:, <span class="va">None</span>, <span class="va">None</span>])<span class="op">@</span>z0</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    L <span class="op">=</span> (z_pred <span class="op">-</span> z_gt).<span class="bu">pow</span>(<span class="dv">2</span>).<span class="bu">sum</span>()</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    L.backward()</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    opt.step()</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'loss'</span> : L.item(), <span class="st">'forb'</span> : (A <span class="op">-</span> B).<span class="bu">pow</span>(<span class="dv">2</span>).<span class="bu">sum</span>()}</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> [step() <span class="cf">for</span> i <span class="kw">in</span> tqdm(<span class="bu">range</span>(<span class="dv">1000</span>))]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="82c05a64" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad() :</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    z_pred <span class="op">=</span> torch.matrix_exp(B[<span class="va">None</span>]<span class="op">*</span>t_gt[:, <span class="va">None</span>, <span class="va">None</span>])<span class="op">@</span>z0</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    plot_results(metrics, B, z_pred, z_gt, t_gt, title<span class="op">=</span><span class="st">'Approach 1 — Gradient descent on expm'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="matrix-exponential-fit_files/figure-html/cell-6-output-1.png" width="978" height="380" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="approach-2-neural-ode" class="level1">
+<h1>Approach 2 — Neural ODE</h1>
+<section id="idea-1" class="level2">
+<h2 class="anchored" data-anchor-id="idea-1">Idea</h2>
+<p>Same loss as Approach 1, but the forward pass uses a numerical ODE solver instead of the closed-form matrix exponential:</p>
+<p><span class="math display">\[\mathcal{L}(B) = \sum_{i=1}^{n} \left\| \texttt{odeint}(B,\, z_0,\, t_i) - z(t_i) \right\|^2\]</span></p>
+<p>Gradients propagate through the integrator via the adjoint method. The two approaches are equivalent in theory but differ numerically: <code>odeint</code> introduces discretisation error that can smooth the loss landscape.</p>
+<p><strong>Data requirement:</strong> a single trajectory.</p>
+</section>
+<section id="code-1" class="level2">
+<h2 class="anchored" data-anchor-id="code-1">Code</h2>
+<div id="a5dded08" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> torch.randn((<span class="dv">2</span>,<span class="dv">2</span>), dtype<span class="op">=</span>torch.float64, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam([B], lr<span class="op">=</span><span class="fl">0.01</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> step() :</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    opt.zero_grad()</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    z_pred <span class="op">=</span> odeint(<span class="kw">lambda</span> t, x : B<span class="op">@</span>x, z0, t_gt)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    L <span class="op">=</span> (z_pred <span class="op">-</span> z_gt).<span class="bu">pow</span>(<span class="dv">2</span>).<span class="bu">sum</span>()</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    L.backward()</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    opt.step()</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">'loss'</span> : L.item(), <span class="st">'forb'</span> : (A <span class="op">-</span> B).<span class="bu">pow</span>(<span class="dv">2</span>).<span class="bu">sum</span>()}</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> [step() <span class="cf">for</span> i <span class="kw">in</span> tqdm(<span class="bu">range</span>(<span class="dv">2000</span>))]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="9c89bbdf" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad() :</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    z_pred <span class="op">=</span> odeint(<span class="kw">lambda</span> t, x : B<span class="op">@</span>x, z0, t_gt)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    plot_results(metrics, B, z_pred, z_gt, t_gt, title<span class="op">=</span><span class="st">'Approach 2 — Neural ODE'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="matrix-exponential-fit_files/figure-html/cell-8-output-1.png" width="976" height="380" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="approach-3-derivative-matching" class="level1">
+<h1>Approach 3 — Derivative matching</h1>
+<section id="idea-2" class="level2">
+<h2 class="anchored" data-anchor-id="idea-2">Idea</h2>
+<p>Since <span class="math inline">\(\dot{z}(t) = Az(t)\)</span> holds pointwise, stacking observations column-wise gives a <strong>linear</strong> equation in <span class="math inline">\(A\)</span>:</p>
+<p><span class="math display">\[\dot{Z} = A Z, \qquad Z = \bigl[z(t_1) \;\cdots\; z(t_n)\bigr] \in \mathbb{R}^{p \times n}\]</span></p>
+<p>The least-squares solution is:</p>
+<p><span class="math display">\[B = \dot{\hat{Z}}\, Z^{\dagger}\]</span></p>
+<p>where <span class="math inline">\(Z^{\dagger} = Z^\top(ZZ^\top)^{-1}\)</span> and <span class="math inline">\(\dot{\hat{Z}}\)</span> is estimated by differentiating a cubic spline fitted to the observations. No gradient descent is required — this is a <strong>single linear solve</strong>.</p>
+<p>The quality of the estimate depends on how faithfully the spline captures <span class="math inline">\(\dot{z}\)</span>, which degrades as observations become sparser.</p>
+<p><strong>Data requirement:</strong> a single trajectory.</p>
+</section>
+<section id="code-2" class="level2">
+<h2 class="anchored" data-anchor-id="code-2">Code</h2>
+<div id="0233f961" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.interpolate <span class="im">import</span> CubicSpline</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>sp <span class="op">=</span> CubicSpline(t_gt, z_gt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="dd8440a5" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>spline visualisation</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>t_plot <span class="op">=</span> torch.linspace(<span class="dv">0</span>, T_gt, <span class="dv">100</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">3</span>))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>].set_title(<span class="st">'Cubic spline fit'</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, c <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="st">'tab:blue'</span>, <span class="st">'tab:orange'</span>]):</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    axs[<span class="dv">0</span>].scatter(t_gt, z_gt[:, i].numpy(), color<span class="op">=</span>c, s<span class="op">=</span><span class="dv">55</span>, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="ss">f'$z_</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">$ obs'</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    axs[<span class="dv">0</span>].plot(t_plot, sp(t_plot)[:, i], color<span class="op">=</span>c, lw<span class="op">=</span><span class="fl">1.5</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>].set_xlabel(<span class="st">'$t$'</span>)<span class="op">;</span> axs[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">1</span>].set_title(<span class="vs">r'Estimated derivative </span><span class="dv">$\d</span><span class="vs">ot{z}</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, c <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="st">'tab:blue'</span>, <span class="st">'tab:orange'</span>]):</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    axs[<span class="dv">1</span>].plot(t_plot, sp(t_plot, <span class="dv">1</span>)[:, i], color<span class="op">=</span>c, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f'$</span><span class="ch">\\</span><span class="ss">dot z_</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">$'</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">1</span>].set_xlabel(<span class="st">'$t$'</span>)<span class="op">;</span> axs[<span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="matrix-exponential-fit_files/figure-html/cell-10-output-1.png" width="978" height="314" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="5ad69886" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># B = S'(t_gt) \cdot S(t_gt)^{\cross}</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> (torch.tensor(sp(t_gt, <span class="dv">1</span>)).T)<span class="op">@</span>torch.linalg.pinv(z_gt.T)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> {}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="d40508a8" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad() :</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    z_pred <span class="op">=</span> odeint(<span class="kw">lambda</span> t, x : B<span class="op">@</span>x, z0, t_gt)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    plot_results(metrics, B, z_pred, z_gt, t_gt, title<span class="op">=</span><span class="st">'Approach 3 — Derivative matching'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="matrix-exponential-fit_files/figure-html/cell-12-output-1.png" width="625" height="380" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="approach-4-matrix-logarithm" class="level1">
+<h1>Approach 4 — Matrix logarithm</h1>
+<section id="idea-3" class="level2">
+<h2 class="anchored" data-anchor-id="idea-3">Idea</h2>
+<p>With <span class="math inline">\(K\)</span> trajectories from <strong>different</strong> initial conditions, all observed at the <strong>same</strong> time <span class="math inline">\(t\)</span>, stack them column-wise:</p>
+<p><span class="math display">\[Z(t) = e^{At} Z_0, \qquad Z_0 = \bigl[z_0^{(1)} \;\cdots\; z_0^{(K)}\bigr] \in \mathbb{R}^{p \times K}\]</span></p>
+<p>For <span class="math inline">\(K \geq p\)</span> with <span class="math inline">\(Z_0\)</span> full row rank, the transition matrix <span class="math inline">\(e^{At}\)</span> is identified by least squares, and <span class="math inline">\(A\)</span> is recovered via the matrix logarithm:</p>
+<p><span class="math display">\[e^{At} = Z(t)\, Z_0^{\dagger} \implies A = \frac{1}{t}\,\operatorname{logm}\!\bigl(Z(t)\, Z_0^{\dagger}\bigr)\]</span></p>
+<p>This is a <strong>closed-form, one-shot</strong> estimate — no gradient descent, no derivative estimation.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Branch cut
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>logm</code> applies the principal matrix logarithm, which recovers <span class="math inline">\(\lambda_k t\)</span> from <span class="math inline">\(e^{\lambda_k t}\)</span> only when <span class="math inline">\(|\operatorname{Im}(\lambda_k t)| &lt; \pi\)</span>. For oscillatory modes with frequency <span class="math inline">\(\omega\)</span> this requires <span class="math inline">\(\omega t &lt; \pi\)</span>. Use a <strong>small</strong> observation time <span class="math inline">\(t\)</span> to stay on the correct branch.</p>
+</div>
+</div>
+<p><strong>Data requirement:</strong> <span class="math inline">\(K \geq p\)</span> trajectories from linearly independent initial conditions.</p>
+</section>
+<section id="code-3" class="level2">
+<h2 class="anchored" data-anchor-id="code-3">Code</h2>
+<div id="2f1a02f6" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>T_multi <span class="op">=</span> <span class="fl">0.01</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Z0 <span class="op">=</span> torch.tensor(torch.randn(<span class="dv">2</span>, <span class="dv">5</span>), dtype<span class="op">=</span>torch.float64)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>t_multi <span class="op">=</span> torch.tensor([<span class="fl">0.0</span>, T_multi]) <span class="co"># We only get one observation per trajectory</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>Z_multi <span class="op">=</span> torch.matrix_exp(A[<span class="va">None</span>]<span class="op">*</span>t_multi[:, <span class="va">None</span>, <span class="va">None</span>])<span class="op">@</span>Z0</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>Z_multi <span class="op">=</span> Z_multi[<span class="dv">1</span>]</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>t_multi <span class="op">=</span> t_multi[<span class="dv">1</span>]</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>M <span class="op">=</span> Z_multi<span class="op">@</span>torch.linalg.pinv(Z0)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.linalg <span class="im">import</span> logm</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> torch.tensor(logm(M.numpy()).real <span class="op">/</span> T_multi)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> {}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="472e9166" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad() :</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    z_pred <span class="op">=</span> odeint(<span class="kw">lambda</span> t, x : B<span class="op">@</span>x, z0, t_gt)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    plot_results(metrics, B, z_pred, z_gt, t_gt, title<span class="op">=</span><span class="st">'Approach 4 — Matrix logarithm'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="matrix-exponential-fit_files/figure-html/cell-14-output-1.png" width="625" height="380" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="approach-5-find-the-closest-diagonal-dynamic" class="level2">
+<h2 class="anchored" data-anchor-id="approach-5-find-the-closest-diagonal-dynamic">Approach 5 : find the closest diagonal dynamic</h2>
+<p>One can assume that the dynamic is diagonal (each component is independent).</p>
+<p>In this case:</p>
+<p><span class="math display">\[
+z_{k,p}(t) = e^{\lambda_p t}\, z_{k,p}(0) \qquad \forall\, t,\, k
+\]</span></p>
+<p>Thus this amounts to solving:</p>
+<p><span class="math display">\[
+\lambda_p = \underset{\lambda_p}{\operatorname{argmin}} \sum_{k \in \mathcal{S}} \sum_{i} \bigl(z_{k,p}(t_i) - e^{\lambda_p t_i} z_{k,p}(0)\bigr)^2
+\]</span></p>
+<p>Taking the log of the model linearises the problem in <span class="math inline">\(\lambda_p\)</span>:</p>
+<p><span class="math display">\[
+\lambda_p = \underset{\lambda_p}{\operatorname{argmin}} \sum_{k \in \mathcal{S}} \sum_{i} \bigl(\log z_{k,p}(t_i) - \lambda_p\, t_i - \log z_{k,p}(0)\bigr)^2
+\]</span></p>
+<p>We can solve this in matrix form. Stacking all time points into <span class="math inline">\(\mathbf{t} \in \mathbb{R}^{n \times 1}\)</span> and defining <span class="math inline">\(L_{i,p} = \log z_p(t_i) - \log z_p(0)\)</span>:</p>
+<p><span class="math display">\[
+\mathbf{t}\,[\lambda_1, \ldots, \lambda_p] = L \implies \Lambda = \mathbf{t}^{\dagger}\, L
+\]</span></p>
+<div id="3e3ec2ef" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (z_gt <span class="op">&gt;</span> <span class="dv">0</span>).<span class="bu">all</span>() <span class="kw">and</span> (z0 <span class="op">&gt;</span> <span class="dv">0</span>).<span class="bu">all</span>():</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    l_gt <span class="op">=</span> torch.log(z_gt)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    l_0  <span class="op">=</span> torch.log(z0)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    lbd  <span class="op">=</span> (torch.linalg.pinv(t_gt[:, <span class="va">None</span>].to(torch.float64)) <span class="op">@</span> (l_gt <span class="op">-</span> l_0)).squeeze()</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    B    <span class="op">=</span> torch.diag(lbd)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Approach 5 not applicable: spiral trajectory goes negative — log undefined."</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    B <span class="op">=</span> torch.full((<span class="dv">2</span>, <span class="dv">2</span>), <span class="bu">float</span>(<span class="st">'nan'</span>), dtype<span class="op">=</span>torch.float64)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> {}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="dd238af2" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad() :</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    z_pred <span class="op">=</span> odeint(<span class="kw">lambda</span> t, x : B<span class="op">@</span>x, z0, t_gt)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    plot_results(metrics, B, z_pred, z_gt, t_gt, title<span class="op">=</span><span class="st">'Approach 5 — Diagonal log regression'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="matrix-exponential-fit_files/figure-html/cell-16-output-1.png" width="625" height="380" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="comparing-approaches" class="level1">
+<h1>Comparing approaches</h1>
+<p>We run all five methods on the three canonical linear systems from the previous post and measure how well each recovered <span class="math inline">\(B\)</span> approximates <span class="math inline">\(A\)</span> in Frobenius norm <span class="math inline">\(\|A - B\|_F\)</span>. Approaches 1 and 2 use Adam (200 epochs); approach 4 uses <span class="math inline">\(K = 20\)</span> independent trajectories from random initial conditions; all others use the same 8 observations over <span class="math inline">\([0, 2]\)</span>.</p>
+<p><span class="math display">\[
+A_{\text{stable node}} = \begin{pmatrix}-2 &amp; 0 \\ 0 &amp; -0.5\end{pmatrix}, \qquad
+A_{\text{center}} = \begin{pmatrix}0 &amp; -2 \\ 2 &amp; 0\end{pmatrix}, \qquad
+A_{\text{degen. node}} = \begin{pmatrix}-1 &amp; 1 \\ 0 &amp; -1\end{pmatrix}
+\]</span></p>
+<div id="781fcf7c" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>fit all five approaches on the three dynamics</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>A_cmp <span class="op">=</span> {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Stable node"</span>:        torch.tensor([[<span class="op">-</span><span class="fl">2.</span>, <span class="fl">0.</span>], [ <span class="fl">0.</span>,<span class="op">-</span><span class="fl">0.5</span>]], dtype<span class="op">=</span>torch.float64),</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Center"</span>:             torch.tensor([[ <span class="fl">0.</span>,<span class="op">-</span><span class="fl">2.</span>], [ <span class="fl">2.</span>, <span class="fl">0.</span> ]], dtype<span class="op">=</span>torch.float64),</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Stable degen. node"</span>: torch.tensor([[<span class="op">-</span><span class="fl">1.</span>, <span class="fl">1.</span>], [ <span class="fl">0.</span>,<span class="op">-</span><span class="fl">1.</span> ]], dtype<span class="op">=</span>torch.float64),</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>z0_cmp <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">1.5</span>], dtype<span class="op">=</span>torch.float64)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>T_cmp  <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>t_cmp  <span class="op">=</span> torch.linspace(<span class="dv">0</span>, T_cmp, <span class="dv">8</span>, dtype<span class="op">=</span>torch.float64)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _fit1(z0, t, z_obs, epochs<span class="op">=</span><span class="dv">200</span>):</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    B   <span class="op">=</span> torch.zeros(<span class="dv">2</span>, <span class="dv">2</span>, dtype<span class="op">=</span>torch.float64, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> torch.optim.Adam([B], lr<span class="op">=</span><span class="fl">0.02</span>)</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(epochs):</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>        (torch.matrix_exp(B[<span class="va">None</span>]<span class="op">*</span>t[:,<span class="va">None</span>,<span class="va">None</span>])<span class="op">@</span>z0 <span class="op">-</span> z_obs).<span class="bu">pow</span>(<span class="dv">2</span>).<span class="bu">sum</span>().backward()</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> B.detach()</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _fit2(z0, t, z_obs, epochs<span class="op">=</span><span class="dv">200</span>):</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    B   <span class="op">=</span> torch.zeros(<span class="dv">2</span>, <span class="dv">2</span>, dtype<span class="op">=</span>torch.float64, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    opt <span class="op">=</span> torch.optim.Adam([B], lr<span class="op">=</span><span class="fl">0.02</span>)</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(epochs):</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>        opt.zero_grad()</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>        (odeint(<span class="kw">lambda</span> s, x: B<span class="op">@</span>x, z0, t) <span class="op">-</span> z_obs).<span class="bu">pow</span>(<span class="dv">2</span>).<span class="bu">sum</span>().backward()</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>        opt.step()</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> B.detach()</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _fit3(z0, t, z_obs):</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>    sp <span class="op">=</span> CubicSpline(t.numpy(), z_obs.numpy())</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (torch.tensor(sp(t.numpy(), <span class="dv">1</span>)).T) <span class="op">@</span> torch.linalg.pinv(z_obs.T)</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _fit4(A_true, T<span class="op">=</span><span class="fl">0.02</span>, K<span class="op">=</span><span class="dv">20</span>):</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>    Z0 <span class="op">=</span> torch.randn(<span class="dv">2</span>, K, dtype<span class="op">=</span>torch.float64)</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>    Z1 <span class="op">=</span> torch.matrix_exp(A_true <span class="op">*</span> T) <span class="op">@</span> Z0</span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.tensor(logm((Z1 <span class="op">@</span> torch.linalg.pinv(Z0)).numpy()).real <span class="op">/</span> T)</span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _fit5(z0, t, z_obs):</span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> ((z_obs <span class="op">&gt;</span> <span class="dv">0</span>).<span class="bu">all</span>() <span class="kw">and</span> (z0 <span class="op">&gt;</span> <span class="dv">0</span>).<span class="bu">all</span>()):</span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>    l_diff <span class="op">=</span> torch.log(z_obs) <span class="op">-</span> torch.log(z0)</span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>    lbd    <span class="op">=</span> (torch.linalg.pinv(t[:,<span class="va">None</span>]) <span class="op">@</span> l_diff).squeeze()</span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> torch.diag(lbd)</span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>cmp_results <span class="op">=</span> {}</span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> case, A_true <span class="kw">in</span> A_cmp.items():</span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a>    z_obs <span class="op">=</span> torch.matrix_exp(A_true[<span class="va">None</span>]<span class="op">*</span>t_cmp[:,<span class="va">None</span>,<span class="va">None</span>]) <span class="op">@</span> z0_cmp</span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a>    cmp_results[case] <span class="op">=</span> {</span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a>        <span class="st">'A_true'</span>: A_true,</span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a>        <span class="st">'fits'</span>:   [_fit1(z0_cmp, t_cmp, z_obs),</span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a>                   _fit2(z0_cmp, t_cmp, z_obs),</span>
+<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a>                   _fit3(z0_cmp, t_cmp, z_obs),</span>
+<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a>                   _fit4(A_true),</span>
+<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a>                   _fit5(z0_cmp, t_cmp, z_obs)],</span>
+<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="753cc488" class="cell" data-execution_count="17">
+<details class="code-fold">
+<summary>comparison plots</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ap_labels   <span class="op">=</span> [<span class="st">'Ap.1</span><span class="ch">\n</span><span class="st">expm grad'</span>, <span class="st">'Ap.2</span><span class="ch">\n</span><span class="st">Neural ODE'</span>, <span class="st">'Ap.3</span><span class="ch">\n</span><span class="st">Deriv. match'</span>,</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">'Ap.4</span><span class="ch">\n</span><span class="st">Matrix log'</span>,  <span class="st">'Ap.5</span><span class="ch">\n</span><span class="st">Diag. regr'</span>]</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>ap_colors   <span class="op">=</span> [<span class="st">'tab:blue'</span>, <span class="st">'tab:orange'</span>, <span class="st">'tab:green'</span>, <span class="st">'tab:red'</span>, <span class="st">'tab:purple'</span>]</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>case_list   <span class="op">=</span> <span class="bu">list</span>(A_cmp.keys())</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>case_colors <span class="op">=</span> [<span class="st">'#1976D2'</span>, <span class="st">'#F57C00'</span>, <span class="st">'#388E3C'</span>]</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>t_fine <span class="op">=</span> torch.linspace(<span class="dv">0</span>, T_cmp, <span class="dv">300</span>, dtype<span class="op">=</span>torch.float64)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>z_trs  <span class="op">=</span> {case: (torch.matrix_exp(cmp_results[case][<span class="st">'A_true'</span>][<span class="va">None</span>]<span class="op">*</span>t_fine[:,<span class="va">None</span>,<span class="va">None</span>]) <span class="op">@</span> z0_cmp).numpy()</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>          <span class="cf">for</span> case <span class="kw">in</span> case_list}</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">8</span>))</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>gs  <span class="op">=</span> fig.add_gridspec(<span class="dv">2</span>, <span class="dv">3</span>, height_ratios<span class="op">=</span>[<span class="fl">1.2</span>, <span class="dv">1</span>], hspace<span class="op">=</span><span class="fl">0.5</span>, wspace<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col, case <span class="kw">in</span> <span class="bu">enumerate</span>(case_list):</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    Bs   <span class="op">=</span> cmp_results[case][<span class="st">'fits'</span>]</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    ax   <span class="op">=</span> fig.add_subplot(gs[<span class="dv">0</span>, col])</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    z_tr <span class="op">=</span> z_trs[case]</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    clip <span class="op">=</span> <span class="bu">float</span>(np.<span class="bu">abs</span>(z_tr).<span class="bu">max</span>()) <span class="op">*</span> <span class="dv">4</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> B, lbl, c <span class="kw">in</span> <span class="bu">zip</span>(Bs, ap_labels, ap_colors):</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> B <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>        B_r <span class="op">=</span> B.real <span class="cf">if</span> torch.is_complex(B) <span class="cf">else</span> B</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>                z_p <span class="op">=</span> odeint(<span class="kw">lambda</span> s, x: B_r<span class="op">@</span>x, z0_cmp, t_fine).numpy()</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> np.<span class="bu">abs</span>(z_p).<span class="bu">max</span>() <span class="op">&lt;</span> clip:</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>                ax.plot(z_p[:,<span class="dv">0</span>], z_p[:,<span class="dv">1</span>], <span class="st">'--'</span>, color<span class="op">=</span>c, lw<span class="op">=</span><span class="fl">1.8</span>,</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>                        label<span class="op">=</span>lbl.split(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>)[<span class="dv">0</span>], zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>            <span class="cf">pass</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>    ax.plot(z_tr[:,<span class="dv">0</span>], z_tr[:,<span class="dv">1</span>], <span class="st">'k-'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'True'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, zorder<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>    ax.scatter(<span class="op">*</span>z0_cmp.numpy(), color<span class="op">=</span><span class="st">'k'</span>, s<span class="op">=</span><span class="dv">60</span>, zorder<span class="op">=</span><span class="dv">15</span>)</span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>    ax.set_aspect(<span class="st">'equal'</span>, adjustable<span class="op">=</span><span class="st">'datalim'</span>)</span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>    ax.set_title(case, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">'$z_1$'</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">'$z_2$'</span>)</span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> col <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>        ax.legend(fontsize<span class="op">=</span><span class="dv">7</span>, loc<span class="op">=</span><span class="st">'upper right'</span>)</span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>ax_bar <span class="op">=</span> fig.add_subplot(gs[<span class="dv">1</span>, :])</span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>x      <span class="op">=</span> np.arange(<span class="bu">len</span>(ap_labels))</span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>width  <span class="op">=</span> <span class="fl">0.25</span></span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>na_bar_drawn <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j, (case, c_bar) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(case_list, case_colors)):</span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a>    A_true <span class="op">=</span> cmp_results[case][<span class="st">'A_true'</span>]</span>
+<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, B <span class="kw">in</span> <span class="bu">enumerate</span>(cmp_results[case][<span class="st">'fits'</span>]):</span>
+<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a>        pos <span class="op">=</span> x[i] <span class="op">+</span> (j <span class="op">-</span> <span class="dv">1</span>)<span class="op">*</span>width</span>
+<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> B <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a>            label <span class="op">=</span> <span class="st">'N/A (not applicable)'</span> <span class="cf">if</span> <span class="kw">not</span> na_bar_drawn <span class="cf">else</span> <span class="st">'_'</span></span>
+<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a>            ax_bar.bar(pos, <span class="fl">0.08</span>, width, color<span class="op">=</span><span class="st">'#cccccc'</span>, edgecolor<span class="op">=</span><span class="st">'white'</span>,</span>
+<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a>                       hatch<span class="op">=</span><span class="st">'///'</span>, alpha<span class="op">=</span><span class="fl">0.9</span>, label<span class="op">=</span>label)</span>
+<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a>            na_bar_drawn <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a>            B_r   <span class="op">=</span> B.real <span class="cf">if</span> torch.is_complex(B) <span class="cf">else</span> B</span>
+<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a>            frob  <span class="op">=</span> (A_true <span class="op">-</span> B_r).norm(p<span class="op">=</span><span class="st">'fro'</span>).item()</span>
+<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a>            label <span class="op">=</span> case <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">'_'</span></span>
+<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a>            ax_bar.bar(pos, frob, width, color<span class="op">=</span>c_bar, alpha<span class="op">=</span><span class="fl">0.85</span>,</span>
+<span id="cb17-60"><a href="#cb17-60" aria-hidden="true" tabindex="-1"></a>                       edgecolor<span class="op">=</span><span class="st">'white'</span>, label<span class="op">=</span>label)</span>
+<span id="cb17-61"><a href="#cb17-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-62"><a href="#cb17-62" aria-hidden="true" tabindex="-1"></a>ax_bar.set_xticks(x)</span>
+<span id="cb17-63"><a href="#cb17-63" aria-hidden="true" tabindex="-1"></a>ax_bar.set_xticklabels([l.replace(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>, <span class="st">' '</span>) <span class="cf">for</span> l <span class="kw">in</span> ap_labels])</span>
+<span id="cb17-64"><a href="#cb17-64" aria-hidden="true" tabindex="-1"></a>ax_bar.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="ch">\|</span><span class="vs">A - B</span><span class="ch">\|</span><span class="vs">_F</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb17-65"><a href="#cb17-65" aria-hidden="true" tabindex="-1"></a>ax_bar.set_title(<span class="st">'Frobenius estimation error per approach and dynamics'</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb17-66"><a href="#cb17-66" aria-hidden="true" tabindex="-1"></a>ax_bar.legend(fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb17-67"><a href="#cb17-67" aria-hidden="true" tabindex="-1"></a>ax_bar.set_ylim(bottom<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb17-68"><a href="#cb17-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-69"><a href="#cb17-69" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">'Comparing all approaches on canonical dynamics'</span>, fontsize<span class="op">=</span><span class="dv">13</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb17-70"><a href="#cb17-70" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb17-71"><a href="#cb17-71" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="matrix-exponential-fit_files/figure-html/cell-18-output-1.png" width="1017" height="812" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="summary" class="level1">
+<h1>Summary</h1>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 35%">
+<col style="width: 21%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Approach</th>
+<th style="text-align: center;">Closed form</th>
+<th>Data needed</th>
+<th>Main sensitivity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Gradient on expm</td>
+<td style="text-align: center;">No</td>
+<td>Single trajectory</td>
+<td>Loss landscape, learning rate</td>
+</tr>
+<tr class="even">
+<td>Neural ODE</td>
+<td style="text-align: center;">No</td>
+<td>Single trajectory</td>
+<td>Solver step size, learning rate</td>
+</tr>
+<tr class="odd">
+<td>Derivative matching</td>
+<td style="text-align: center;">Yes</td>
+<td>Single trajectory</td>
+<td>Spline quality (sparse data)</td>
+</tr>
+<tr class="even">
+<td>Matrix logarithm</td>
+<td style="text-align: center;">Yes</td>
+<td><span class="math inline">\(K \geq p\)</span> trajectories, same <span class="math inline">\(t\)</span></td>
+<td>Branch cut (use small <span class="math inline">\(t\)</span>)</td>
+</tr>
+<tr class="odd">
+<td>Diagonal log regression</td>
+<td style="text-align: center;">Yes</td>
+<td>Single trajectory</td>
+<td>Assumes <span class="math inline">\(A\)</span> diagonal; log-space loss</td>
+</tr>
+</tbody>
+</table>
+<p>The closed-form approaches (3, 4, 5) are generally preferable when their assumptions hold: derivative matching for a single dense trajectory, matrix logarithm when you control initial conditions, and diagonal regression when the dynamics are known to be decoupled.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/etienne-meunier\.github\.io\/Blog");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
