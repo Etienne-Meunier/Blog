@@ -44,28 +44,19 @@ $$
 
 $T$ maps an initial condition $\Phi_0$ and a time $t$ to the state reached at time $t$. It is, in general, nonlinear in $\Phi_0$ — that nonlinearity is exactly the difficulty Koopman theory is built to sidestep.
 
-## The Koopman operator
+## Koopman eigenfunctions
 
-Instead of tracking the state $\Phi$ directly, Koopman theory tracks **observables** — scalar functions of the state. For every observable $\kg : \mathbb{R}^p \to \mathbb{R}$, there exists a linear operator $K^t : \mathcal{H} \to \mathcal{H}$ such that
-
-$$
-K^t \kg(\Phi_0) = \kg\big(T(\Phi_0, t)\big)
-$$
-
-
-### Koopman eigenfunctions
-
-Koopman eigenfunctions are *special observables* $\kPsi_j$ ($j = 1, 2, 3, \dots$) that are eigenfunctions of $K^t$ and thus verify : 
+Koopman eigenfunctions are *special observables* $\kPsi_j$ ($j = 1, 2, 3, \dots$) with $\kPsi_j : \mathbb{R}^p \to \mathbb{R}$ that respect the following relationship :
 
 $$
-K^t \kPsi_j(\Phi_0) = e^{\klam_j t} \kPsi_j(\Phi_0)
+\kPsi_j(T(\Phi_0, t)) = e^{\klam_j t} \kPsi_j(\Phi_0) \Leftrightarrow \frac{d \kPsi_j(\Phi(t))}{dt} = \klam_j \kPsi_j(\Phi(t))
 $$
 
-There could be an infinity of observables for a given dynamic, in practice we will restrict to $J$. 
+There could be an infinity of observables for a given dynamic, in practice we will restrict to $J$.
 
-### Decomposing a general observable in this basis
+## Decomposing a general observable in this basis {#sec-decompose}
 
-Any observable $\kg$ can be written as a (generally infinite) linear combination of the $\kPsi_j$:
+If our set of eigenfunctions form a basis, every observable $\kg : \mathbb{R}^p \to \mathbb{R}$ can be written as a (generally infinite) linear combination of the $\kPsi_j$:
 
 $$
 \kg(\Phi_0) = \sum_{j=0}^{\infty} \kv_j \kPsi_j(\Phi_0)
@@ -74,10 +65,20 @@ $$
 Once $\kg$ is expressed in the eigenbasis we can use the eigenfunction property to propagate it forward in time as easily as multiplying each coefficient with an exponential factor :
 
 $$
-K^t \kg(\Phi_0) = \sum_j \kv_j K^t \kPsi_j(\Phi_0) = \sum_j \kv_j e^{\klam_j t} \kPsi_j(\Phi_0)
+\kg(T(\Phi_0, t)) = \sum_j \kv_j \kPsi_j(T(\Phi_0, t)) = \sum_j \kv_j e^{\klam_j t} \kPsi_j(\Phi_0)
 $$
 
 Although in practice, finding a set of $\kPsi_j$ that respect the linearity constraint while allowing for a good reconstruction of any observable is not easy, that's what we are going to see in the next section !  
+
+::: {.callout-note icon=false appearance="simple"}
+This decomposition induces a new form for the observed dynamic :
+
+$$
+\frac{d \kg(\Phi(t))}{dt} = \nabla \kg(\Phi(t)) \cdot S(\Phi(t)) = \sum_j \kv_j \frac{d \kPsi_j(\Phi(t))}{dt} =  \sum_j \kv_j \klam_j \kPsi_j(\Phi(t))
+$$
+:::
+
+
 
 ## Worked example: scalar linear ODE
 
@@ -88,6 +89,8 @@ $$
 \quad \Longrightarrow \quad
 T(\Phi_0, t) = e^{\klam t} \Phi_0
 $$
+
+We then introduce a non linear observer $g : \mathbb{R}^p \to \mathbb{R}$ and try to express it's evolution as a sum a weighted koopman eigenfunctions.
 
 Let's first run it to get a ground-truth trajectory : 
 
@@ -143,13 +146,13 @@ $$
 
 ### Step 1 — search for eigenfunctions
 
-Try a few candidate observables $\kg$ and check whether $K^t \kg(\Phi_0) = \kg(T(\Phi_0,t))$ matches a pure exponential $e^{\klam_j t} \kg(\Phi_0)$:
+Try a few candidate observables $\kg$ and check whether $\kg(T(\Phi_0,t))$ matches a pure exponential $e^{\klam_j t} \kg(\Phi_0)$:
 
 | Candidate | Test | Eigenfunction? |
 |---|---|:---:|
-| $\kg_1(\Phi) = \Phi$ | $K^t \kg_1(\Phi_0) = \kg_1\big(e^{\klam t}\Phi_0\big) = e^{\klam t} \kg_1(\Phi_0)$ | ✓ |
-| $\kg_2(\Phi) = \Phi^2$ | $K^t \kg_2(\Phi_0) = \kg_2\big(e^{\klam t}\Phi_0\big) = e^{2\klam t}\Phi_0^2 = e^{2\klam t} \kg_2(\Phi_0)$ | ✓ |
-| $\kg_3(\Phi) = \sin(\Phi)$ | $K^t \kg_3(\Phi_0) = \kg_3\big(e^{\klam t}\Phi_0\big) \neq e^{\klam t} \kg_3(\Phi_0)$ | ✗ |
+| $\kg_1(\Phi) = \Phi$ | $\kg_1(T(\Phi_0,t)) = \kg_1\big(e^{\klam t}\Phi_0\big) = e^{\klam t} \kg_1(\Phi_0)$ | ✓ |
+| $\kg_2(\Phi) = \Phi^2$ | $\kg_2(T(\Phi_0,t)) = \kg_2\big(e^{\klam t}\Phi_0\big) = e^{2\klam t}\Phi_0^2 = e^{2\klam t} \kg_2(\Phi_0)$ | ✓ |
+| $\kg_3(\Phi) = \sin(\Phi)$ | $\kg_3(T(\Phi_0,t)) = \kg_3\big(e^{\klam t}\Phi_0\big) \neq e^{\klam t} \kg_3(\Phi_0)$ | ✗ |
 
 In general, $\kPsi_k(\Phi) = \Phi^k$ for $k \in \mathbb{N}$ are Koopman eigenfunctions of this dynamics, with eigenvalue $k\klam$. Not every observable is an eigenfunction — $\sin(\Phi)$ is the counter-example.
 
@@ -332,6 +335,41 @@ plt.show()
 
 The agreement (within the truncation error of using only $J=5$ basis functions) is the key payoff of the Koopman framework: a nonlinear flow on $\Phi$ becomes a finite set of independent exponentials on the coefficients $\kv_j$.
 
+### Step 4 — sanity check: the reconstructed dynamics
+
+As shown in @sec-decompose, decomposing $\kg$ in the eigenbasis gives a new expression for its dynamic:
+
+$$
+\frac{d \kg(\Phi(t))}{dt} = \nabla \kg(\Phi(t)) \cdot S(\Phi(t)) = \sum_j \kv_j \klam_j \kpsi_j(\Phi(t))
+$$
+
+We can check this reconstruction directly, independent of any single trajectory, by comparing the true chain-rule dynamic against the Koopman-reconstructed one over a range of $\Phi$ values:
+
+```{python}
+#| label: phase-compute
+
+true_dg = lambda phi: torch.func.vmap(torch.func.grad(target_g))(phi) * lam * phi
+koopman_dg = lambda phi: Psi(phi) @ (v_star * lambdas)
+
+phis = torch.linspace(0, 2, 100)
+```
+
+```{python}
+#| label: fig-phase
+#| fig-cap: "Comparing the true chain-rule dynamic of g against the Koopman-reconstructed one, as a function of Phi (not time)."
+#| code-fold: true
+#| code-summary: "Show plotting code"
+
+plt.figure(figsize=(6, 4))
+plt.plot(phis, true_dg(phis), label="true: grad(g)(Phi) . S(Phi)")
+plt.plot(phis, koopman_dg(phis), "--", label="Koopman: sum_j v_j lambda_j psi_j(Phi)")
+plt.xlabel(r"$\Phi$")
+plt.ylabel(r"$dg/dt$")
+plt.legend()
+plt.title("Reconstructed vs. true dynamic of g")
+plt.show()
+```
+
 ## Discussion
 
 ### Why can't we do this in practice ?
@@ -357,3 +395,8 @@ $$
 $$
 
 In a next chapter we will see how this dual optimization procedure relate to koopman based data-driven methods !
+
+## Related
+
+- [Can Koopman eigenfunctions be complex?](question-koopman-complex-eigenfunctions.qmd) — a follow-up on why $\kpsi_j$, $\kv_j$, $\klam_j$ are generally complex-valued even when the observable $\kg$ is real.
+

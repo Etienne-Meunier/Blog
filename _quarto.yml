@@ -16,7 +16,10 @@ format:
     toc: true
     toc-depth: 3
     fig-cap-location: bottom
+    fig-align: center
     highlight-style: github
+    grid:
+      body-width: 1400px
 
 execute:
   warning: false
