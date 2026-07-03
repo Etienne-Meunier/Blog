@@ -398,5 +398,6 @@ In a next chapter we will see how this dual optimization procedure relate to koo
 
 ## Related
 
+- [Koopman Eigenfunctions — A Nonlinear Example](koopman-nonlinear-example.qmd) — the full loop (test, decompose, reconstruct, forecast, expand the basis) on a nonlinear system with closed-form eigenfunctions.
 - [Can Koopman eigenfunctions be complex?](question-koopman-complex-eigenfunctions.qmd) — a follow-up on why $\kpsi_j$, $\kv_j$, $\klam_j$ are generally complex-valued even when the observable $\kg$ is real.
 
