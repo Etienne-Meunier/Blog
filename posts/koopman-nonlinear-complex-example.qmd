@@ -29,7 +29,18 @@ format:
         </script>
 ---
 
-In many systems Koopman models are going to live in complex space, even if the physical variable is in real space. This impacts the way we do our temporal integration and our reconstruction.
+In many systems Koopman models live in complex space, even when the physical variables are real. This impacts the way we do our temporal integration and our reconstruction.
+
+We illustrate this on the nonlinear system
+
+$$
+\begin{aligned}
+\dot{x}_1 &= a\,x_1 - \omega\,x_2 + \omega c\,x_1^2 \\
+\dot{x}_2 &= \omega\,x_1 + a\,x_2 + a c\,x_1^2 - 2 c \omega\,x_1 x_2 + 2 c^2 \omega\,x_1^3
+\end{aligned}
+$$
+
+whose flow we integrate below with parameters $(a, \omega, c) = (1, 4, 3)$.
 
 ```{python}
 #| label: imports
@@ -49,7 +60,6 @@ from einops import rearrange
 @dataclass
 class ComplexPoint:
     a: float
-    b: float
     c: float
     w: float
 
@@ -68,7 +78,7 @@ class ComplexPoint:
 
         return torch.stack([xp1, xp2], dim=-1)
 
-fp = ComplexPoint(1.0, 2.0, 3.0, 4.0)
+fp = ComplexPoint(1.0, 3.0, 4.0)
 
 x0 = torch.tensor([1., 2.])
 t_int = torch.linspace(0, 2, 100)
@@ -77,15 +87,26 @@ x_gt = odeint(fp.f, x0, t_int)
 
 ```{python}
 #| label: fig-trajectory
-#| fig-cap: "Ground-truth trajectory in state space, colored by time."
+#| fig-cap: "Ground-truth trajectory in state space, colored by time, over the phase portrait of the vector field."
 #| code-fold: true
 #| code-summary: "Show plotting code"
 
+# vector field over the region spanned by the trajectory
+(x1_min, x2_min), (x1_max, x2_max) = x_gt.min(0).values, x_gt.max(0).values
+mx1, mx2 = 0.1 * (x1_max - x1_min), 0.1 * (x2_max - x2_min)
+g1 = torch.linspace(x1_min - mx1, x1_max + mx1, 25)
+g2 = torch.linspace(x2_min - mx2, x2_max + mx2, 25)
+G1, G2 = torch.meshgrid(g1, g2, indexing="xy")
+dxdt = fp.f(0.0, torch.stack([G1, G2], dim=-1))  # (25, 25, 2)
+
 plt.figure(figsize=(5, 4))
-plt.scatter(*x_gt.T, c=t_int)
+plt.title("State-space trajectory")
+plt.streamplot(g1.numpy(), g2.numpy(), dxdt[..., 0].numpy(), dxdt[..., 1].numpy(),
+               color="0.7", density=1.0, linewidth=0.6, arrowsize=0.7)
+sc = plt.scatter(*x_gt.T, c=t_int, zorder=3)
 plt.xlabel(r"$x_1$")
 plt.ylabel(r"$x_2$")
-plt.colorbar(label="t")
+plt.colorbar(sc, label="t")
 plt.show()
 ```
 
@@ -95,13 +116,13 @@ $$
 \kpsi_j(x_t) = e^{\klam_j t}\,\kpsi_j(x_0) = e^{(\gamma+\omega i)t}\, r_j(x_0)\, e^{i\varphi_j(x_0)} =  r_j(x_0)\,e^{\gamma t }\, e^{i(\varphi_j(x_0) +\omega t)}
 $$
 
-Thus we just have a scaling in magnitude and a shift in phase. These two isolated contributions of the dynamics make them easier to apply in polar representation than in Cartesian coordinates.
+Thus we just have a scaling in magnitude and a shift in phase. These two contributions decouple, which makes the dynamics easier to apply in a polar representation than in Cartesian coordinates.
 
-In order to check if observed values are following a linear relationship we can:
+In order to check if observed values follow a linear relationship we can:
 
 1. Check if their magnitude has an exponential relationship $\log(\frac{r(t)}{r(0)}) = \gamma t$
 
-2. Check if their angle has a common shift: $\phi (t) - \phi(0) = \operatorname{mod}_{2\pi}(\omega t)$
+2. Check if their angle has a common shift: $\varphi(t) - \varphi(0) = \operatorname{mod}_{2\pi}(\omega t)$
 
 As in the [nonlinear example](koopman-nonlinear-example.qmd) we test two candidates: the true eigenfunction $\kpsi$ and a guess $f$ which is not one.
 
@@ -121,24 +142,32 @@ def f(x):
 
 ```{python}
 #| label: fig-koopman-coords
-#| fig-cap: "The trajectory in physical coordinates (left) and mapped through $\\psi$ into the complex plane (right)."
+#| fig-cap: "The trajectory in physical coordinates (left), mapped through the eigenfunction $\\psi$ (middle) and through the non-eigenfunction $f$ (right) into the complex plane."
 #| code-fold: true
 #| code-summary: "Show plotting code"
 
-fig, axs = plt.subplots(1, 2, figsize=(5, 4))
+fig, axs = plt.subplots(1, 3, figsize=(11, 3.5))
 axs[0].set_title('Physical coordinates')
 axs[0].scatter(*x_gt.T, c=t_int)
 axs[0].set_xlabel(r"$x_1$")
 axs[0].set_ylabel(r"$x_2$")
 
-axs[1].set_title('Koopman coordinates')
+axs[1].set_title(r'Koopman coordinates ($\psi$)')
 axs[1].scatter(psi(x_gt).real, psi(x_gt).imag, c=t_int)
 axs[1].set_xlabel(r"$real$")
 axs[1].set_ylabel(r"$imag$")
 
+axs[2].set_title(r'$f$ coordinates')
+axs[2].scatter(f(x_gt).real, f(x_gt).imag, c=t_int)
+axs[2].set_xlabel(r"$real$")
+axs[2].set_ylabel(r"$imag$")
+
 fig.tight_layout()
 plt.show()
 ```
+
+::: {.callout-note collapse="true"}
+## Unwrapping angles
 
 For the second step you need to unwrap the angles to identify $\omega$:
 
@@ -162,6 +191,8 @@ fig.tight_layout()
 plt.show()
 ```
 
+:::
+
 Here we need to adapt our technique to test if the projected trajectory follows a linear dynamic in complex space:
 
 ```{python}
@@ -182,18 +213,24 @@ for name, p in {"psi": psi, "f": f}.items():
 
 ```{python}
 #| label: fig-eigenlines
-#| fig-cap: "The two halves of the test for each candidate: magnitude on a log scale (left) and unwrapped angle (right). Both are straight lines for $\\psi$, and bend for $f$."
+#| fig-cap: "The physical variables over time (left), and the two halves of the test for each candidate: magnitude on a log scale (middle) and unwrapped angle (right). Both are straight lines for $\\psi$, and bend for $f$."
 #| code-fold: true
 #| code-summary: "Show plotting code"
 
-fig, axs = plt.subplots(1, 2, figsize=(9, 3.5), sharex=True)
+fig, axs = plt.subplots(1, 3, figsize=(9.6, 2.8), sharex=True)
+axs[0].plot(t_int, x_gt[:, 0], label=r"$x_1$")
+axs[0].plot(t_int, x_gt[:, 1], label=r"$x_2$")
+axs[0].set_title("physical variables")
+axs[0].set_ylabel("state")
 for name, p in {r"$\psi$": psi, r"$f$": f}.items():
     px = p(x_gt)
-    axs[0].plot(t_int, px.abs(), label=name)
-    axs[1].plot(t_int, np.unwrap(px.angle().numpy()), label=name)
-axs[0].set_yscale("log")
-axs[0].set_title("magnitude (log scale)")
-axs[1].set_title("unwrapped angle [rad]")
+    axs[1].plot(t_int, px.abs(), label=name)
+    axs[2].plot(t_int, np.unwrap(px.angle().numpy()), label=name)
+axs[1].set_yscale("log")
+axs[1].set_title("magnitude (log scale)")
+axs[1].set_ylabel("magnitude")
+axs[2].set_title("unwrapped angle [rad]")
+axs[2].set_ylabel("angle [rad]")
 for ax in axs:
     ax.set_xlabel("t")
     ax.legend()
@@ -201,14 +238,14 @@ fig.tight_layout()
 plt.show()
 ```
 
-The estimates for $\kpsi$ agree on constants, reading off $\gamma$ and $\omega$, while the estimates for $f$ drift:
+The estimates for $\kpsi$ settle on constant values, from which we read off $\gamma$ and $\omega$, while the estimates for $f$ drift:
 
 | Candidate | $\gamma$ | $\omega$ | Eigenfunction? |
 |---|:---:|:---:|:---:|
 | $\kpsi(x) = x_1 + i(x_2 - c x_1^2)$ | $1$ | $4$ | ✓ |
 | $f(x) = (x_1{+}x_2) + i(x_1{-}x_2)$ | drifts | drifts | ✗ |
 
-Once we have the eigenfunctions and values we can use them to project in future timesteps:
+Once we have the eigenfunctions and eigenvalues we can use them to forecast future timesteps:
 
 ```{python}
 #| label: eigenforecast
@@ -226,27 +263,33 @@ tilde_psi_t = torch.polar(tilde_psi_t_r, tilde_psi_t_w)
 
 ```{python}
 #| label: fig-eigenforecast
-#| fig-cap: "True eigenfunction values along the trajectory (left, colored by time) and the polar-form forecast from $\\psi(x_0)$ (right, colored by the error $|\\psi(x_t) - \\tilde{\\psi}_t|$)."
+#| fig-cap: "True eigenfunction values along the trajectory (left) and the polar-form forecast from $\\psi(x_0)$ (right), both colored by time. The given initial state is circled in red."
 #| code-fold: true
 #| code-summary: "Show plotting code"
 
 psi_gt = psi(x_gt)
-err = (psi_gt - tilde_psi_t).abs()
 
 fig, axs = plt.subplots(1, 2, figsize=(9, 3.5), sharex=True, sharey=True)
-axs[0].scatter(psi_gt.real, psi_gt.imag, c=t_int)
-sc = axs[1].scatter(tilde_psi_t.real, tilde_psi_t.imag, c=err)
-fig.colorbar(sc, ax=axs[1], label=r"$|\psi(x_t) - \tilde{\psi}_t|$")
+sc = axs[0].scatter(psi_gt.real, psi_gt.imag, c=t_int)
+axs[1].scatter(tilde_psi_t.real, tilde_psi_t.imag, c=t_int)
+axs[0].set_title(r"True $\psi(x_t)$")
+axs[1].set_title(r"Forecast $\tilde{\psi}_t$")
+
+# initial state is given, circle it in red
+for ax, z0 in zip(axs, (psi_gt[0], tilde_psi_t[0])):
+    ax.scatter(z0.real, z0.imag, facecolors='none', edgecolors='red',
+               s=120, linewidths=1.5, zorder=3)
+
+fig.colorbar(sc, ax=axs, label="t")
 for ax in axs:
     ax.set_xlabel("Re")
 axs[0].set_ylabel("Im")
-fig.tight_layout()
 plt.show()
 ```
 
 # Reconstruction
 
-As we showed in [the complex notebook](question-koopman-complex-eigenfunctions.qmd), Koopman eigenfunctions always come with their conjugate, which allows to retrieve the real space at reconstruction time. As we want to learn $\kv_j = \alpha_j + \beta_j i$ which is the weight given to an eigenfunction in the reconstruction we can show:
+As we showed in [the complex notebook](question-koopman-complex-eigenfunctions.qmd), Koopman eigenfunctions always come with their conjugate, which lets us retrieve the real state at reconstruction time. As we want to learn $\kv_j = \alpha_j + \beta_j i$ which is the weight given to an eigenfunction in the reconstruction we can show:
 
 $$
 \begin{align}
@@ -256,9 +299,14 @@ $$
 \end{align}
 $$
 
-So basically we end up doing a linear regression with the real and imaginary parts of the eigenfunction. The good news is: if we didn't represent the conjugate of $\kpsi_j$ in our chosen eigenbasis, using that method we don't need it, it will lead to the same reconstruction as if we had it. If it is present the weights will just adapt.
+So we end up doing a linear regression with the real and imaginary parts of the eigenfunction. The good news is that if we didn't include the conjugate of $\kpsi_j$ in our chosen eigenbasis, this method doesn't need it: it leads to the same reconstruction as if we had. And if the conjugate is present, the weights simply adapt.
 
-Note on the eigenlattice: we can use the eigenlattice property to improve the representation of $\kg(x)$. In the previous section we stated that each eigenfunction has its conjugate and that we didn't need to include it given the way we do reconstruction. Although something interesting is that they can take part in the eigenlattice and that $\kpsi_j \bar{\kpsi}_j$ is an eigenfunction too! Which increases the expressivity of the eigenspace.
+::: {.callout-note collapse="true"}
+## Note on the eigenlattice
+
+We can use the eigenlattice property to improve the representation of $\kg(x)$. In the previous section we stated that each eigenfunction has its conjugate and that we didn't need to include it given the way we do reconstruction. Although something interesting is that they can take part in the eigenlattice and that $\kpsi_j \bar{\kpsi}_j$ is an eigenfunction too! Which increases the expressivity of the eigenspace.
+
+:::
 
 ```{python}
 #| label: decomposition
@@ -287,18 +335,24 @@ tilde_x_gt = complex_to_component(Psi(x_gt)) @ V.T
 #| code-fold: true
 #| code-summary: "Show plotting code"
 
-fig, axs = plt.subplots(1, 2)
+fig, axs = plt.subplots(1, 2, figsize=(9, 3.5), sharex=True, sharey=True)
 
+axs[0].set_title("True")
+axs[1].set_title("Reconstruction")
 axs[0].scatter(*x_gt.T)
 axs[1].scatter(*tilde_x_gt.T)
+for ax in axs:
+    ax.set_xlabel(r"$x_1$")
+axs[0].set_ylabel(r"$x_2$")
+fig.tight_layout()
 plt.show()
 ```
 
 # Forecasting summary
 
-So we can summarise the forecast with the following figure: compute the eigenfunctions, project them in the future with the polar form and recompose linearly to form the physical state:
+So we can summarise the forecast with the following figure: compute the eigenfunctions, project them forward with the polar form and recompose linearly to form the physical state:
 
-![](images/Koopman.drawio.svg)
+![](images/Koopman.drawio.svg){fig-align="center"}
 
 ```{python}
 #| label: forecast
@@ -307,26 +361,48 @@ Gammas = torch.tensor([gamma, 2 * gamma, 2 * gamma])  # (J)
 Omegas = torch.tensor([omega, 2 * omega, 0])  # (J)
 
 
-psi_0 = Psi(x_gt[0])
-psi_0_r, psi_0_w = psi_0.abs(), psi_0.angle()  # (J), (J)
+def forecast_from(x0):
+    """Koopman forecast of the whole trajectory from an initial state x0."""
+    psi_0 = Psi(x0)
+    psi_0_r, psi_0_w = psi_0.abs(), psi_0.angle()  # (J), (J)
 
-psi_r = torch.exp(Gammas[None] * t_int[:, None]) * psi_0_r[None]  # (T, J)
-psi_w = psi_0_w[None] + Omegas * t_int[:, None]  # (T, J)
+    psi_r = torch.exp(Gammas[None] * t_int[:, None]) * psi_0_r[None]  # (T, J)
+    psi_w = psi_0_w[None] + Omegas * t_int[:, None]  # (T, J)
 
-psi_t = complex_to_component(torch.polar(psi_r, psi_w))  # (T, (2*J))
+    psi_t = complex_to_component(torch.polar(psi_r, psi_w))  # (T, (2*J))
+    return psi_t @ V.T
 
-tilde_x_gt = psi_t @ V.T
+
+# several initial states, each giving its own trajectory
+x0s = torch.tensor([[1.0, 2.0], [-1.0, 1.0], [0.5, -0.5], [-0.5, -1.5]])
+t_int = torch.linspace(0, 0.2, 100)
+
+gts = [odeint(fp.f, x0, t_int) for x0 in x0s]      # ground-truth integration
+forecasts = [forecast_from(x0) for x0 in x0s]      # Koopman forecast from x0
 ```
 
 ```{python}
 #| label: fig-forecast
-#| fig-cap: "True trajectory (left) vs. the Koopman forecast from the initial condition alone (right)."
+#| fig-cap: "Several trajectories from different initial states (left, marked in black) vs. their Koopman forecasts from those same initial states (right)."
 #| code-fold: true
 #| code-summary: "Show plotting code"
 
-fig, axs = plt.subplots(1, 2)
+fig, axs = plt.subplots(1, 2, figsize=(9, 3.5), sharex=True, sharey=True)
 
-axs[0].scatter(*x_gt.T, c=t_int)
-axs[1].scatter(*tilde_x_gt.T, c=t_int)
+axs[0].set_title("Ground truth")
+axs[1].set_title("Koopman forecasts")
+
+for k, (x_true, x_fore) in enumerate(zip(gts, forecasts)):
+    color = f"C{k}"
+    axs[0].scatter(*x_true.T, s=10, color=color, label=f"traj {k}")
+    axs[1].scatter(*x_fore.T, s=10, color=color)
+    for ax in axs:
+        ax.scatter(*x0s[k], color=color, edgecolors="k", s=60, zorder=3)
+
+axs[0].legend()
+for ax in axs:
+    ax.set_xlabel(r"$x_1$")
+axs[0].set_ylabel(r"$x_2$")
+fig.tight_layout()
 plt.show()
 ```
