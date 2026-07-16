@@ -5,19 +5,51 @@
     <lastmod>2026-06-25T14:51:48.981Z</lastmod>
   </url>
   <url>
-    <loc>https://etienne-meunier.github.io/Blog/posts/matrix-exponential-fit.html</loc>
-    <lastmod>2026-06-30T16:39:11.778Z</lastmod>
+    <loc>https://etienne-meunier.github.io/Blog/Unrolling-implementation.html</loc>
+    <lastmod>2026-07-14T16:23:55.940Z</lastmod>
   </url>
   <url>
-    <loc>https://etienne-meunier.github.io/Blog/posts/matrix-exponential.html</loc>
-    <lastmod>2026-06-30T16:39:04.872Z</lastmod>
+    <loc>https://etienne-meunier.github.io/Blog/posts/not-koopman/function_difference_trick.html</loc>
+    <lastmod>2026-07-15T15:59:27.935Z</lastmod>
   </url>
   <url>
-    <loc>https://etienne-meunier.github.io/Blog/posts/koopman-introduction.html</loc>
-    <lastmod>2026-06-30T16:39:00.309Z</lastmod>
+    <loc>https://etienne-meunier.github.io/Blog/posts/koopman/question-koopman-complex-eigenfunctions.html</loc>
+    <lastmod>2026-07-02T10:28:15.275Z</lastmod>
+  </url>
+  <url>
+    <loc>https://etienne-meunier.github.io/Blog/posts/koopman/koopman-unrolling.html</loc>
+    <lastmod>2026-07-14T18:10:57.401Z</lastmod>
+  </url>
+  <url>
+    <loc>https://etienne-meunier.github.io/Blog/posts/koopman/koopman-introduction.html</loc>
+    <lastmod>2026-07-03T18:53:55.261Z</lastmod>
+  </url>
+  <url>
+    <loc>https://etienne-meunier.github.io/Blog/posts/koopman-nonlinear-complex-example.html</loc>
+    <lastmod>2026-07-10T11:56:30.777Z</lastmod>
+  </url>
+  <url>
+    <loc>https://etienne-meunier.github.io/Blog/posts/koopman/matrix-exponential.html</loc>
+    <lastmod>2026-07-02T10:09:48.250Z</lastmod>
+  </url>
+  <url>
+    <loc>https://etienne-meunier.github.io/Blog/posts/koopman/koopman-nonlinear-complex-example.html</loc>
+    <lastmod>2026-07-10T19:09:48.748Z</lastmod>
+  </url>
+  <url>
+    <loc>https://etienne-meunier.github.io/Blog/posts/koopman/koopman-nonlinear-example.html</loc>
+    <lastmod>2026-07-03T18:57:23.206Z</lastmod>
+  </url>
+  <url>
+    <loc>https://etienne-meunier.github.io/Blog/posts/koopman/matrix-exponential-fit.html</loc>
+    <lastmod>2026-07-02T10:09:31.483Z</lastmod>
   </url>
   <url>
     <loc>https://etienne-meunier.github.io/Blog/index.html</loc>
     <lastmod>2026-06-30T16:38:32.640Z</lastmod>
+  </url>
+  <url>
+    <loc>https://etienne-meunier.github.io/Blog/Learning koopman eigenfunctions.html</loc>
+    <lastmod>2026-07-15T11:33:20.273Z</lastmod>
   </url>
 </urlset>

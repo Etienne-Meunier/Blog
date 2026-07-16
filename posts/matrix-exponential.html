@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Etienne Meunier">
-<meta name="dcterms.date" content="2026-06-30">
+<meta name="dcterms.date" content="2026-07-03">
 
 <title>Matrix Exponential vs Numerical Integration – Etienne Meunier</title>
 <style>
@@ -79,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-21bb366e5b161d777050e91fc951db15.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-214082c51f5f1f6ff5cef209e4f9c7c6.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -219,7 +219,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 30, 2026</p>
+      <p class="date">July 3, 2026</p>
     </div>
   </div>
   
@@ -274,7 +274,7 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<div id="6fbd21e8" class="cell" data-execution_count="1">
+<div id="22b3b676" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>imports</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -283,7 +283,7 @@ window.Quarto = {
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchdiffeq <span class="im">import</span> odeint</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="3b4994e3" class="cell" data-execution_count="2">
+<div id="04a35cdc" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>A1 <span class="op">=</span> torch.tensor([[<span class="op">-</span><span class="fl">2.0</span>, <span class="fl">0.0</span>],</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                   [ <span class="fl">0.0</span>,<span class="op">-</span><span class="fl">0.5</span>]], dtype<span class="op">=</span>torch.float64)   <span class="co"># stable node</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -297,7 +297,7 @@ window.Quarto = {
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>         (<span class="st">"Center"</span>,                 A2),</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>         (<span class="st">"Stable degenerate node"</span>, A3)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="bd24cb77" class="cell" data-execution_count="3">
+<div id="cd8187ab" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -340,7 +340,7 @@ window.Quarto = {
 <p>Setting <span class="math inline">\(t = K\delta_t\)</span> (i.e.&nbsp;<span class="math inline">\(K = t/\delta_t\)</span>) and taking <span class="math inline">\(\delta_t \to 0\)</span>:</p>
 <p><span class="math display">\[z_e(t) = \left(I + \frac{t}{K} A\right)^K z_0 \xrightarrow[K \to \infty]{} e^{At}\,z_0\]</span></p>
 <p>This is exactly the standard limit definition of the matrix exponential. The matrix exponential is the continuous limit of the Euler scheme — accuracy degrades as <span class="math inline">\(\delta_t\)</span> grows.</p>
-<div id="9df1e539" class="cell" data-execution_count="4">
+<div id="81b5a2b1" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Euler vs exact — plot</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>z0    <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">1.5</span>], dtype<span class="op">=</span>torch.float64)</span>
@@ -396,7 +396,7 @@ window.Quarto = {
 <li><strong>One <span class="math inline">\(t\)</span>, many <span class="math inline">\(z_0\)</span>?</strong> E.g. a batch of initial conditions all propagated to the same horizon.</li>
 </ol>
 <p>We compare four methods on these axes. All code uses a shared setup:</p>
-<div id="914683fc" class="cell" data-execution_count="5">
+<div id="ed04f40d" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>A_ex  <span class="op">=</span> A2</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>z0_ex <span class="op">=</span> torch.tensor([<span class="fl">1.0</span>, <span class="fl">0.5</span>], dtype<span class="op">=</span>torch.float64)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>t_ex  <span class="op">=</span> torch.tensor(<span class="fl">3.0</span>,        dtype<span class="op">=</span>torch.float64)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -405,7 +405,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="diagonalization">Diagonalization</h2>
 <p>If <span class="math inline">\(A = VDV^{-1}\)</span>, then <span class="math inline">\(e^{At} = V e^{Dt} V^{-1}\)</span>, where <span class="math inline">\(e^{Dt}\)</span> is cheap to compute (diagonal).</p>
 <p>For non-diagonalizable <span class="math inline">\(A\)</span> this fails; Schur decomposition is the fallback.</p>
-<div id="508fbeae" class="cell" data-execution_count="6">
+<div id="2cea058b" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>L, V <span class="op">=</span> torch.linalg.eig(A_ex)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> torch.linalg.cond(V) <span class="op">&lt;</span> <span class="fl">1e10</span>, <span class="st">'Matrix A is not diagonalizable'</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -420,7 +420,7 @@ window.Quarto = {
 <section id="approximate-eat" class="level2">
 <h2 class="anchored" data-anchor-id="approximate-eat">Approximate <span class="math inline">\(e^{At}\)</span></h2>
 <p>Approximates <span class="math inline">\(e^{At}\)</span> as a ratio of matrix polynomials with a scaling-and-squaring step for large <span class="math inline">\(\|At\|\)</span>.</p>
-<div id="03313ea7" class="cell" data-execution_count="7">
+<div id="f91c308f" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>expAt <span class="op">=</span> torch.linalg.matrix_exp(A_ex <span class="op">*</span> t_ex)   <span class="co"># (Apparently what is done in pytorch is similar to Padé)</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>z_t   <span class="op">=</span> expAt <span class="op">@</span> z0_ex                            <span class="co"># reuse for any z0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -439,7 +439,7 @@ window.Quarto = {
 <p><span class="math display">\[e^{At}z_0 \approx \sum_{j=0}^{M} \frac{1}{j!} K_j t^j\]</span></p>
 <p>This is the general idea, in practice, the Krylov method builds an orthonormal basis of <span class="math inline">\(\mathcal{K}_m\)</span> to avoid the numerical instability of summing the raw <span class="math inline">\(A^j z_0\)</span> terms directly.</p>
 <p>PyTorch currently has no built-in function for this, but we can use the one from scipy:</p>
-<div id="cf01a7f9" class="cell" data-execution_count="8">
+<div id="5bc5bd6f" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.sparse.linalg <span class="im">import</span> expm_multiply</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>z_t <span class="op">=</span> expm_multiply(A_ex.numpy() <span class="op">*</span> t_ex.item(), z0_ex.numpy())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -450,7 +450,7 @@ window.Quarto = {
 <section id="numerical-integration-odeint" class="level2">
 <h2 class="anchored" data-anchor-id="numerical-integration-odeint">Numerical integration (odeint)</h2>
 <p>Solves <span class="math inline">\(\dot{z} = Az\)</span> by stepping through intermediate times from <span class="math inline">\(z_0\)</span> to <span class="math inline">\(t\)</span>. Step size is constrained by the stiffness of <span class="math inline">\(A\)</span> (ratio of largest to smallest <span class="math inline">\(|\lambda|\)</span>). Naturally efficient for successive <span class="math inline">\(t\)</span> values on the same trajectory since all intermediate states are already computed.</p>
-<div id="b158bd3f" class="cell" data-execution_count="9">
+<div id="a0e62cc0" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>z_t    <span class="op">=</span> odeint(<span class="kw">lambda</span> t, z: A_ex <span class="op">@</span> z, z0_ex, torch.tensor([<span class="fl">0.0</span>, t_ex]))[<span class="op">-</span><span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>✓ works with <span class="math inline">\(\dot{z}(t) = A(t) z(t)\)</span> (time-varying linear dynamics)</p>
@@ -500,7 +500,7 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<div class="cell" data-layout-align="default">
+<div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div>
 <p></p><figure class="figure"><p></p>

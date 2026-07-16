@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Etienne Meunier">
-<meta name="dcterms.date" content="2026-06-30">
+<meta name="dcterms.date" content="2026-07-03">
 
 <title>Learning Linear Dynamics – Etienne Meunier</title>
 <style>
@@ -230,7 +230,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 30, 2026</p>
+      <p class="date">July 3, 2026</p>
     </div>
   </div>
   
@@ -253,7 +253,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="ground-truth">Ground truth</h2>
 <p>We use a <strong>stable node</strong> with off-diagonal coupling as the true system and observe the trajectory at <span class="math inline">\(n = 4\)</span> uniformly-spaced time points. The eigenvalues are <span class="math inline">\(-0.1\)</span> and <span class="math inline">\(-1\)</span> — real, stable, with well-separated time scales.</p>
 <p><span class="math display">\[A = \begin{pmatrix}-0.4 &amp; 0.6 \\ 0.3 &amp; -0.7\end{pmatrix}, \quad z_0 = \begin{pmatrix}1 \\ 1.5\end{pmatrix}\]</span></p>
-<div id="979e87a4" class="cell" data-execution_count="1">
+<div id="39b25069" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>imports</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -274,7 +274,7 @@ window.Quarto = {
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="650d7e95" class="cell" data-execution_count="2">
+<div id="d3c24520" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>A <span class="op">=</span> torch.tensor([[<span class="op">-</span><span class="fl">0.4</span>,  <span class="fl">0.6</span>],</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                   [ <span class="fl">0.3</span>, <span class="op">-</span><span class="fl">0.7</span>]], dtype<span class="op">=</span>torch.float64)   <span class="co"># stable node, eigs = -0.1, -1.0</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -285,7 +285,7 @@ window.Quarto = {
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>z_gt <span class="op">=</span> torch.matrix_exp(A[<span class="va">None</span>]<span class="op">*</span>t_gt[:, <span class="va">None</span>, <span class="va">None</span>])<span class="op">@</span>z0</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="b1592fb8" class="cell" data-execution_count="3">
+<div id="83760a36" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>plotting helpers</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _streamplot(ax, M, color, alpha<span class="op">=</span><span class="fl">0.45</span>, density<span class="op">=</span><span class="fl">0.9</span>,</span>
@@ -372,7 +372,7 @@ window.Quarto = {
 </section>
 <section id="code" class="level2">
 <h2 class="anchored" data-anchor-id="code">Code</h2>
-<div id="3a1701f1" class="cell" data-execution_count="4">
+<div id="6f3ff11e" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> torch.randn((<span class="dv">2</span>,<span class="dv">2</span>), dtype<span class="op">=</span>torch.float64, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.SGD([B], lr<span class="op">=</span><span class="fl">0.005</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -386,7 +386,7 @@ window.Quarto = {
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> [step() <span class="cf">for</span> i <span class="kw">in</span> tqdm(<span class="bu">range</span>(<span class="dv">1000</span>))]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="82c05a64" class="cell" data-execution_count="5">
+<div id="f863026f" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>plot</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad() :</span>
@@ -396,7 +396,7 @@ window.Quarto = {
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="matrix-exponential-fit_files/figure-html/cell-6-output-1.png" width="978" height="380" class="figure-img"></p>
+<p><img src="matrix-exponential-fit_files/figure-html/cell-6-output-1.png" width="977" height="380" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -414,7 +414,7 @@ window.Quarto = {
 </section>
 <section id="code-1" class="level2">
 <h2 class="anchored" data-anchor-id="code-1">Code</h2>
-<div id="a5dded08" class="cell" data-execution_count="6">
+<div id="aa5fa302" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> torch.randn((<span class="dv">2</span>,<span class="dv">2</span>), dtype<span class="op">=</span>torch.float64, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>opt <span class="op">=</span> torch.optim.Adam([B], lr<span class="op">=</span><span class="fl">0.01</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -428,7 +428,7 @@ window.Quarto = {
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> [step() <span class="cf">for</span> i <span class="kw">in</span> tqdm(<span class="bu">range</span>(<span class="dv">2000</span>))]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="9c89bbdf" class="cell" data-execution_count="7">
+<div id="aa41fa9c" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>plot</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad() :</span>
@@ -438,7 +438,7 @@ window.Quarto = {
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="matrix-exponential-fit_files/figure-html/cell-8-output-1.png" width="976" height="380" class="figure-img"></p>
+<p><img src="matrix-exponential-fit_files/figure-html/cell-8-output-1.png" width="978" height="380" class="figure-img"></p>
 </figure>
 </div>
 </div>
@@ -459,12 +459,12 @@ window.Quarto = {
 </section>
 <section id="code-2" class="level2">
 <h2 class="anchored" data-anchor-id="code-2">Code</h2>
-<div id="0233f961" class="cell" data-execution_count="8">
+<div id="0e80b6ca" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.interpolate <span class="im">import</span> CubicSpline</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>sp <span class="op">=</span> CubicSpline(t_gt, z_gt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="dd8440a5" class="cell" data-execution_count="9">
+<div id="a8036dec" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>spline visualisation</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>t_plot <span class="op">=</span> torch.linspace(<span class="dv">0</span>, T_gt, <span class="dv">100</span>)</span>
@@ -491,13 +491,13 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<div id="5ad69886" class="cell" data-execution_count="10">
+<div id="30d23691" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># B = S'(t_gt) \cdot S(t_gt)^{\cross}</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> (torch.tensor(sp(t_gt, <span class="dv">1</span>)).T)<span class="op">@</span>torch.linalg.pinv(z_gt.T)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> {}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="d40508a8" class="cell" data-execution_count="11">
+<div id="705a967d" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>plot</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad() :</span>
@@ -540,7 +540,7 @@ window.Quarto = {
 </section>
 <section id="code-3" class="level2">
 <h2 class="anchored" data-anchor-id="code-3">Code</h2>
-<div id="2f1a02f6" class="cell" data-execution_count="12">
+<div id="854dd79a" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>T_multi <span class="op">=</span> <span class="fl">0.01</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Z0 <span class="op">=</span> torch.tensor(torch.randn(<span class="dv">2</span>, <span class="dv">5</span>), dtype<span class="op">=</span>torch.float64)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>t_multi <span class="op">=</span> torch.tensor([<span class="fl">0.0</span>, T_multi]) <span class="co"># We only get one observation per trajectory</span></span>
@@ -558,7 +558,7 @@ window.Quarto = {
 <span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> {}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="472e9166" class="cell" data-execution_count="13">
+<div id="59fd921e" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>plot</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad() :</span>
@@ -593,7 +593,7 @@ z_{k,p}(t) = e^{\lambda_p t}\, z_{k,p}(0) \qquad \forall\, t,\, k
 <p><span class="math display">\[
 \mathbf{t}\,[\lambda_1, \ldots, \lambda_p] = L \implies \Lambda = \mathbf{t}^{\dagger}\, L
 \]</span></p>
-<div id="3e3ec2ef" class="cell" data-execution_count="14">
+<div id="7a6b3afa" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (z_gt <span class="op">&gt;</span> <span class="dv">0</span>).<span class="bu">all</span>() <span class="kw">and</span> (z0 <span class="op">&gt;</span> <span class="dv">0</span>).<span class="bu">all</span>():</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    l_gt <span class="op">=</span> torch.log(z_gt)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    l_0  <span class="op">=</span> torch.log(z0)</span>
@@ -605,7 +605,7 @@ z_{k,p}(t) = e^{\lambda_p t}\, z_{k,p}(0) \qquad \forall\, t,\, k
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> {}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="dd238af2" class="cell" data-execution_count="15">
+<div id="7018e4b1" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>plot</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad() :</span>
@@ -630,7 +630,7 @@ A_{\text{stable node}} = \begin{pmatrix}-2 &amp; 0 \\ 0 &amp; -0.5\end{pmatrix},
 A_{\text{center}} = \begin{pmatrix}0 &amp; -2 \\ 2 &amp; 0\end{pmatrix}, \qquad
 A_{\text{degen. node}} = \begin{pmatrix}-1 &amp; 1 \\ 0 &amp; -1\end{pmatrix}
 \]</span></p>
-<div id="781fcf7c" class="cell" data-execution_count="16">
+<div id="f06f1400" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>fit all five approaches on the three dynamics</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>A_cmp <span class="op">=</span> {</span>
@@ -689,7 +689,7 @@ A_{\text{degen. node}} = \begin{pmatrix}-1 &amp; 1 \\ 0 &amp; -1\end{pmatrix}
 <span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<div id="753cc488" class="cell" data-execution_count="17">
+<div id="92554fb1" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>comparison plots</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ap_labels   <span class="op">=</span> [<span class="st">'Ap.1</span><span class="ch">\n</span><span class="st">expm grad'</span>, <span class="st">'Ap.2</span><span class="ch">\n</span><span class="st">Neural ODE'</span>, <span class="st">'Ap.3</span><span class="ch">\n</span><span class="st">Deriv. match'</span>,</span>

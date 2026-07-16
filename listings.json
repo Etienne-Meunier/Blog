@@ -2,9 +2,15 @@
   {
     "listing": "/index.html",
     "items": [
-      "/posts/matrix-exponential.html",
-      "/posts/koopman-introduction.html",
-      "/posts/matrix-exponential-fit.html"
+      "/posts/koopman-nonlinear-complex-example.html",
+      "/posts/koopman/matrix-exponential.html",
+      "/posts/koopman/koopman-introduction.html",
+      "/posts/koopman/koopman-nonlinear-complex-example.html",
+      "/posts/koopman/koopman-unrolling.html",
+      "/posts/koopman/koopman-nonlinear-example.html",
+      "/posts/koopman/question-koopman-complex-eigenfunctions.html",
+      "/posts/koopman/matrix-exponential-fit.html",
+      "/posts/not-koopman/function_difference_trick.html"
     ]
   }
 ]
