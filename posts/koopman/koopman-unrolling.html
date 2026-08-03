@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Etienne Meunier">
-<meta name="dcterms.date" content="2026-07-16">
+<meta name="dcterms.date" content="2026-08-03">
 
 <title>Koopman unrolling — learning eigenfunctions from data – Etienne Meunier</title>
 <style>
@@ -212,7 +212,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 16, 2026</p>
+      <p class="date">August 3, 2026</p>
     </div>
   </div>
   
@@ -261,7 +261,7 @@ window.Quarto = {
 <p>Our mental image for this tutorial:</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="images/Koopman structure.drawio.svg" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+<p><img src="../images/Koopman structure.drawio.svg" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
 <p><span class="math inline">\(j\)</span> independent modes, each of dimension <span class="math inline">\(l\)</span>. Stacked, the full latent dynamic is block-diagonal: <span class="math inline">\(j\)</span> blocks of size <span class="math inline">\(l \times l\)</span>. The encoder maps <span class="math inline">\(x \in \mathbb R^p\)</span> to <span class="math inline">\(z \in \mathbb R^{j \times l}\)</span>.</p>
@@ -279,7 +279,7 @@ window.Quarto = {
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="imports" class="cell-output cell-output-display" data-execution_count="1">
-<pre><code>&lt;torch._C.Generator at 0x13828d910&gt;</code></pre>
+<pre><code>&lt;torch._C.Generator at 0x13c45d8d0&gt;</code></pre>
 </div>
 </div>
 <div id="dynamics" class="cell" data-execution_count="2">
@@ -1425,7 +1425,7 @@ Figure&nbsp;6: Left: RMS of the total error and of its two components as a funct
 <span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>Our mental image for this tutorial:</span>
 <span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/Koopman structure.drawio.svg)</span>{fig-align="center"}</span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a><span class="al">![](../images/Koopman structure.drawio.svg)</span>{fig-align="center"}</span>
 <span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>$j$ independent modes, each of dimension $l$. Stacked, the full latent dynamic is block-diagonal: $j$ blocks of size $l \times l$. The encoder maps $x \in \mathbb R^p$ to $z \in \mathbb R^{j \times l}$.</span>
 <span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a></span>
