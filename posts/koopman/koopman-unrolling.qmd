@@ -39,7 +39,7 @@ Two visions:
 
 Our mental image for this tutorial:
 
-![](images/Koopman structure.drawio.svg){fig-align="center"}
+![](../images/Koopman structure.drawio.svg){fig-align="center"}
 
 $j$ independent modes, each of dimension $l$. Stacked, the full latent dynamic is block-diagonal: $j$ blocks of size $l \times l$. The encoder maps $x \in \mathbb R^p$ to $z \in \mathbb R^{j \times l}$.
 
