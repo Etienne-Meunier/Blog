@@ -47,7 +47,7 @@ $$
 \end{cases}
 $$
 
-That's the pendulum equation (with $m = g = L = 1$), we can integrate it numerically to get trajectories from an initial state $(\theta_0, \dot\theta_0)$. We simulate **four** of them once here, released from rest at four different angles, and everything after that is read off those same four trajectories.
+That's the pendulum equation (with $m = g = L = 1$), we can integrate it numerically to get trajectories from an initial state $(\theta_0, \dot\theta_0)$.
 
 ```{python}
 #| label: simulate
@@ -66,8 +66,6 @@ def integrate(x0, t):
     return flat.reshape(len(t), *x0.shape)
 
 
-# four swings, all released from rest, from a small one to one that nearly stalls
-# at the top. This is the only simulation of the notebook, the rest is diagnostics.
 theta0 = np.array([0.6, 1.4, 2.2, 2.8])
 x0 = np.stack([theta0, np.zeros_like(theta0)], -1)
 t = np.linspace(0, 20, 401)
@@ -147,7 +145,7 @@ save_gif(anim, "images/anim-pendulum.gif")
 
 ## Energy and period
 
-Interesting quantity we can derive first is the energy of the system ($\kH$)
+We can first derive $\kH$, the energy of the system : 
 
 $$
 \kH = \underbrace{\tfrac{1}{2}\dot\theta^2}_{\text{kinetic}} \;+\; \underbrace{1 - \cos\theta}_{\text{potential}} \;\in\; [0, 2)
@@ -165,7 +163,7 @@ k = \sqrt{\kH / 2},
 F(\varphi, k) = \int_0^{\varphi} \frac{dt}{\sqrt{1 - k^2 \sin^2 t}}
 $$
 
-$F(\tfrac{\pi}{2}, k) = K(k)$ is the *complete* elliptic integral of the first kind, which is what `scipy.special.ellipk` gives — careful, scipy takes the parameter $m = k^2$, so `ellipk(H / 2)`.
+$F(\tfrac{\pi}{2}, k) = K(k)$ is the *complete* elliptic integral of the first kind  (`scipy.special.ellipk`)
 
 So from a point we get the energy of the system and from the energy we get the period of this system.
 
@@ -224,7 +222,6 @@ axc = fig.add_subplot(gs[0, 1])
 Hg = np.linspace(1e-4, 1.9999, 400)
 axc.plot(Hg, period(Hg), "k-", lw=1.2, alpha=.6)
 axc.axhline(2 * np.pi, color="k", ls=":", lw=.8)
-axc.annotate(r"$2\pi$, the small oscillation limit", (0.02, 2 * np.pi), fontsize=8, va="bottom")
 marks = [axc.plot([h], [T], "o", color=c, ms=12)[0] for h, T, c in zip(H0, T0, COLORS)]
 for h, T in zip(H0, T0):
     axc.annotate(f"T = {T:.2f}", (h, T), textcoords="offset points", xytext=(9, -3), fontsize=8)
@@ -250,7 +247,7 @@ save_gif(anim, "images/anim-period.gif")
 
 ![](images/anim-period.gif){fig-align="center"}
 
-*Each pendulum blinks in sync with its own period — heavier swings (higher $\kH$) take longer, diverging near the $2\pi$ small-oscillation limit only close to $\kH = 0$.*
+*Each pendulum blinks in sync with its own period — heavier swings (higher $\kH$) take longer.*
 
 ## Action - Angle
 
@@ -259,16 +256,23 @@ save_gif(anim, "images/anim-period.gif")
 Now we saw that each trajectory is going to keep a constant energy and go around with it's period we can draw it's trajectory for a full period. This will link several points of the physical space together ! Those points share the same energy and then will always belong to the same trajectories.
 
 ```{python}
+#| label: draw-phase-space
+def level_set(H, n=200):
+    """The H level set of the phase space: thetadot = +- sqrt(2 (H - 1 + cos theta)),
+    walked out along the top branch and back along the bottom one, so the curve closes."""
+    th = np.linspace(-np.arccos(1 - H), np.arccos(1 - H), n) # Min-max theta values 
+    v = np.sqrt(2 * (H - 1 + np.cos(th))) # (theta, H) -> theta dot
+    v[0] = v[-1] = 0 # We have numerical erros at the extrema ~ nan
+    return np.concatenate([th, th[::-1]]), np.concatenate([v, -v[::-1]])
+```
+
+
+
+```{python}
 #| label: anim-phase-space
 #| code-fold: true
 #| code-summary: "Show plotting code"
 #| output: false
-def level_set(H, n=300):
-    """The H level set of the phase space: thetadot = +- sqrt(2 (H - 1 + cos theta)),
-    walked out along the top branch and back along the bottom one, so the curve closes."""
-    th = np.linspace(-np.arccos(1 - H), np.arccos(1 - H), n)
-    v = np.sqrt(np.clip(2 * (H - 1 + np.cos(th)), 0, None))
-    return np.concatenate([th, th[::-1]]), np.concatenate([v, -v[::-1]])
 
 
 stride = 7          # four trajectories run one after the other here, so animate coarser
@@ -297,7 +301,7 @@ axp.set(xlim=(-np.pi, np.pi), ylim=(-2.35, 2.35), xlabel=r"$\theta$", ylabel=r"$
 # swing each pendulum for exactly one period, tracing its curve, then keep the curve and
 # move to the next one. Once the four are drawn, fill in the levels in between.
 frames = [("run", i, j) for i in range(len(theta0))
-          for j in range(0, int(T0[i] / dt) + 2, stride)]
+          for j in list(range(0, int(T0[i] / dt), stride)) + [int(T0[i] / dt)]]
 frames += [("fill", c, 0) for c in range(len(fills))]
 frames += [("fill", len(fills) - 1, 0)] * 8          # hold on the finished picture
 
@@ -320,7 +324,7 @@ def update(frame):
     return [rod, bob] + curves + points + fills
 
 
-anim = FuncAnimation(fig, update, frames=frames, interval=60, blit=False)
+anim = FuncAnimation(fig, update, frames=frames, interval=120, blit=False)
 plt.close(fig)
 save_gif(anim, "images/anim-phase-space.gif")
 ```
@@ -410,7 +414,7 @@ fig.tight_layout()
 plt.show()
 ```
 
-As we can see what is super interesting is that we get a representation of the trajectory where we de-untangled the "static / energy" and the dynamic part : when we have done the projection only the angle is moving during integration. What is also fun is that by injecting some energy into the representation ($\hat{\kI} = \kI + \epsilon$) we have a new trajectory at the same relative time (the angle will represent the time in the period, like if you are at $\kalpha = \pi$ you will be also at the half of the period on the new trajectory) and get a fully new trajectory.
+As we can see what is super interesting is that we get a representation of the trajectory where we de-untangled the "static / energy" and the dynamic part : when we have done the projection only the angle is moving during integration. 
 
 #### From action-angle to state
 
@@ -490,7 +494,7 @@ print(f"state recovered to {np.abs(r_traj - traj).max():.1e}")
 
 ```{python}
 #| label: fig-roundtrip
-#| fig-cap: "Decoded state (thin line) over the original (thick, faded) — any mismatch would show as a fringe of colour."
+#| fig-cap: "Decoded state (thin line) over the original (thick, faded)."
 #| fig-align: center
 #| code-fold: true
 #| code-summary: "Show plotting code"
