@@ -462,77 +462,70 @@ F(\varphi, k) = \int_0^{\varphi} \frac{dt}{\sqrt{1 - k^2 \sin^2 t}}
 <div id="draw-phase-space" class="cell" data-execution_count="7">
 <details open="" class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> level_set(H, n<span class="op">=</span><span class="dv">300</span>):</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> level_set(H, n<span class="op">=</span><span class="dv">200</span>):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""The H level set of the phase space: thetadot = +- sqrt(2 (H - 1 + cos theta)),</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">    walked out along the top branch and back along the bottom one, so the curve closes."""</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    th <span class="op">=</span> np.linspace(<span class="op">-</span>np.arccos(<span class="dv">1</span> <span class="op">-</span> H), np.arccos(<span class="dv">1</span> <span class="op">-</span> H), n) <span class="co"># Min-max theta values </span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> np.sqrt(np.clip(<span class="dv">2</span> <span class="op">*</span> (H <span class="op">-</span> <span class="dv">1</span> <span class="op">+</span> np.cos(th)), <span class="dv">0</span>, <span class="va">None</span>)) <span class="co"># (theta, H) -&gt; theta dot</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.concatenate([th, th[::<span class="op">-</span><span class="dv">1</span>]]), np.concatenate([v, <span class="op">-</span>v[::<span class="op">-</span><span class="dv">1</span>]])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> np.sqrt(<span class="dv">2</span> <span class="op">*</span> (H <span class="op">-</span> <span class="dv">1</span> <span class="op">+</span> np.cos(th))) <span class="co"># (theta, H) -&gt; theta dot</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    v[<span class="dv">0</span>] <span class="op">=</span> v[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> <span class="dv">0</span> <span class="co"># We have numerical erros at the extrema ~ nan</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.concatenate([th, th[::<span class="op">-</span><span class="dv">1</span>]]), np.concatenate([v, <span class="op">-</span>v[::<span class="op">-</span><span class="dv">1</span>]])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div id="anim-phase-space" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Show plotting code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> level_set(H, n<span class="op">=</span><span class="dv">300</span>):</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""The H level set of the phase space: thetadot = +- sqrt(2 (H - 1 + cos theta)),</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">    walked out along the top branch and back along the bottom one, so the curve closes."""</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    th <span class="op">=</span> np.linspace(<span class="op">-</span>np.arccos(<span class="dv">1</span> <span class="op">-</span> H), np.arccos(<span class="dv">1</span> <span class="op">-</span> H), n)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> np.sqrt(np.clip(<span class="dv">2</span> <span class="op">*</span> (H <span class="op">-</span> <span class="dv">1</span> <span class="op">+</span> np.cos(th)), <span class="dv">0</span>, <span class="va">None</span>))</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.concatenate([th, th[::<span class="op">-</span><span class="dv">1</span>]]), np.concatenate([v, <span class="op">-</span>v[::<span class="op">-</span><span class="dv">1</span>]])</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>stride <span class="op">=</span> <span class="dv">7</span>          <span class="co"># four trajectories run one after the other here, so animate coarser</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>dt <span class="op">=</span> t[<span class="dv">1</span>] <span class="op">-</span> t[<span class="dv">0</span>]</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.8</span>))</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>gs <span class="op">=</span> fig.add_gridspec(<span class="dv">1</span>, <span class="dv">2</span>, width_ratios<span class="op">=</span>[<span class="dv">1</span>, <span class="fl">1.4</span>], wspace<span class="op">=</span><span class="fl">.25</span>)</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> fig.add_subplot(gs[<span class="dv">0</span>, <span class="dv">0</span>])</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlim<span class="op">=</span>(<span class="op">-</span><span class="fl">1.4</span>, <span class="fl">1.4</span>), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">1.4</span>, <span class="fl">1.4</span>), xticks<span class="op">=</span>[], yticks<span class="op">=</span>[], title<span class="op">=</span><span class="st">"one swing at a time"</span>)</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>ax.set_aspect(<span class="st">"equal"</span>)</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>ax.plot(<span class="dv">0</span>, <span class="dv">0</span>, <span class="st">"k+"</span>, ms<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>rod, <span class="op">=</span> ax.plot([], [], <span class="st">"-"</span>, lw<span class="op">=</span><span class="fl">1.5</span>)</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>bob, <span class="op">=</span> ax.plot([], [], <span class="st">"o"</span>, ms<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>axp <span class="op">=</span> fig.add_subplot(gs[<span class="dv">0</span>, <span class="dv">1</span>])</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>axp.plot(<span class="op">*</span>level_set(<span class="fl">1.9999</span>), <span class="st">"k--"</span>, lw<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">.5</span>)</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>axp.annotate(<span class="st">"separatrix, $H = 2$"</span>, (<span class="dv">0</span>, <span class="dv">2</span>), fontsize<span class="op">=</span><span class="dv">8</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"bottom"</span>)</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>fills <span class="op">=</span> [axp.plot([], [], <span class="st">"-"</span>, color<span class="op">=</span><span class="st">"0.75"</span>, lw<span class="op">=</span><span class="fl">.7</span>, zorder<span class="op">=</span><span class="dv">0</span>)[<span class="dv">0</span>] <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">24</span>)]</span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>fill_H <span class="op">=</span> np.linspace(<span class="fl">0.05</span>, <span class="fl">1.95</span>, <span class="bu">len</span>(fills))</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>curves <span class="op">=</span> [axp.plot([], [], <span class="st">"-"</span>, color<span class="op">=</span>c, lw<span class="op">=</span><span class="fl">1.6</span>)[<span class="dv">0</span>] <span class="cf">for</span> c <span class="kw">in</span> COLORS]</span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>points <span class="op">=</span> [axp.plot([], [], <span class="st">"o"</span>, color<span class="op">=</span>c, ms<span class="op">=</span><span class="dv">8</span>)[<span class="dv">0</span>] <span class="cf">for</span> c <span class="kw">in</span> COLORS]</span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>axp.<span class="bu">set</span>(xlim<span class="op">=</span>(<span class="op">-</span>np.pi, np.pi), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">2.35</span>, <span class="fl">2.35</span>), xlabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, ylabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$\d</span><span class="vs">ot</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>,</span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">"phase space: one trajectory, one closed curve"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>stride <span class="op">=</span> <span class="dv">7</span>          <span class="co"># four trajectories run one after the other here, so animate coarser</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>dt <span class="op">=</span> t[<span class="dv">1</span>] <span class="op">-</span> t[<span class="dv">0</span>]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.8</span>))</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>gs <span class="op">=</span> fig.add_gridspec(<span class="dv">1</span>, <span class="dv">2</span>, width_ratios<span class="op">=</span>[<span class="dv">1</span>, <span class="fl">1.4</span>], wspace<span class="op">=</span><span class="fl">.25</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> fig.add_subplot(gs[<span class="dv">0</span>, <span class="dv">0</span>])</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlim<span class="op">=</span>(<span class="op">-</span><span class="fl">1.4</span>, <span class="fl">1.4</span>), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">1.4</span>, <span class="fl">1.4</span>), xticks<span class="op">=</span>[], yticks<span class="op">=</span>[], title<span class="op">=</span><span class="st">"one swing at a time"</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>ax.set_aspect(<span class="st">"equal"</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>ax.plot(<span class="dv">0</span>, <span class="dv">0</span>, <span class="st">"k+"</span>, ms<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>rod, <span class="op">=</span> ax.plot([], [], <span class="st">"-"</span>, lw<span class="op">=</span><span class="fl">1.5</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>bob, <span class="op">=</span> ax.plot([], [], <span class="st">"o"</span>, ms<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>axp <span class="op">=</span> fig.add_subplot(gs[<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>axp.plot(<span class="op">*</span>level_set(<span class="fl">1.9999</span>), <span class="st">"k--"</span>, lw<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">.5</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>axp.annotate(<span class="st">"separatrix, $H = 2$"</span>, (<span class="dv">0</span>, <span class="dv">2</span>), fontsize<span class="op">=</span><span class="dv">8</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"bottom"</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>fills <span class="op">=</span> [axp.plot([], [], <span class="st">"-"</span>, color<span class="op">=</span><span class="st">"0.75"</span>, lw<span class="op">=</span><span class="fl">.7</span>, zorder<span class="op">=</span><span class="dv">0</span>)[<span class="dv">0</span>] <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">24</span>)]</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>fill_H <span class="op">=</span> np.linspace(<span class="fl">0.05</span>, <span class="fl">1.95</span>, <span class="bu">len</span>(fills))</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>curves <span class="op">=</span> [axp.plot([], [], <span class="st">"-"</span>, color<span class="op">=</span>c, lw<span class="op">=</span><span class="fl">1.6</span>)[<span class="dv">0</span>] <span class="cf">for</span> c <span class="kw">in</span> COLORS]</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>points <span class="op">=</span> [axp.plot([], [], <span class="st">"o"</span>, color<span class="op">=</span>c, ms<span class="op">=</span><span class="dv">8</span>)[<span class="dv">0</span>] <span class="cf">for</span> c <span class="kw">in</span> COLORS]</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>axp.<span class="bu">set</span>(xlim<span class="op">=</span>(<span class="op">-</span>np.pi, np.pi), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">2.35</span>, <span class="fl">2.35</span>), xlabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, ylabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$\d</span><span class="vs">ot</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>,</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">"phase space: one trajectory, one closed curve"</span>)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co"># swing each pendulum for exactly one period, tracing its curve, then keep the curve and</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co"># move to the next one. Once the four are drawn, fill in the levels in between.</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>frames <span class="op">=</span> [(<span class="st">"run"</span>, i, j) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(theta0))</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>          <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">int</span>(T0[i] <span class="op">/</span> dt), stride)) <span class="op">+</span> [<span class="bu">int</span>(T0[i] <span class="op">/</span> dt)]]</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>frames <span class="op">+=</span> [(<span class="st">"fill"</span>, c, <span class="dv">0</span>) <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(fills))]</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>frames <span class="op">+=</span> [(<span class="st">"fill"</span>, <span class="bu">len</span>(fills) <span class="op">-</span> <span class="dv">1</span>, <span class="dv">0</span>)] <span class="op">*</span> <span class="dv">8</span>          <span class="co"># hold on the finished picture</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="co"># swing each pendulum for exactly one period, tracing its curve, then keep the curve and</span></span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="co"># move to the next one. Once the four are drawn, fill in the levels in between.</span></span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>frames <span class="op">=</span> [(<span class="st">"run"</span>, i, j) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(theta0))</span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>          <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">int</span>(T0[i] <span class="op">/</span> dt) <span class="op">+</span> <span class="dv">2</span>, stride)]</span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>frames <span class="op">+=</span> [(<span class="st">"fill"</span>, c, <span class="dv">0</span>) <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(fills))]</span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>frames <span class="op">+=</span> [(<span class="st">"fill"</span>, <span class="bu">len</span>(fills) <span class="op">-</span> <span class="dv">1</span>, <span class="dv">0</span>)] <span class="op">*</span> <span class="dv">8</span>          <span class="co"># hold on the finished picture</span></span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> update(frame):</span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    kind, a, b <span class="op">=</span> frame</span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> kind <span class="op">==</span> <span class="st">"run"</span>:</span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>        i, j <span class="op">=</span> a, <span class="bu">min</span>(b, <span class="bu">len</span>(t) <span class="op">-</span> <span class="dv">1</span>)</span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>        rod.set_data([<span class="dv">0</span>, np.sin(traj[j, i, <span class="dv">0</span>])], [<span class="dv">0</span>, <span class="op">-</span>np.cos(traj[j, i, <span class="dv">0</span>])])</span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>        bob.set_data([np.sin(traj[j, i, <span class="dv">0</span>])], [<span class="op">-</span>np.cos(traj[j, i, <span class="dv">0</span>])])</span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>        rod.set_color(COLORS[i])</span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>        bob.set_color(COLORS[i])</span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>        curves[i].set_data(traj[:j <span class="op">+</span> <span class="dv">1</span>, i, <span class="dv">0</span>], traj[:j <span class="op">+</span> <span class="dv">1</span>, i, <span class="dv">1</span>])</span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>        points[i].set_data([traj[j, i, <span class="dv">0</span>]], [traj[j, i, <span class="dv">1</span>]])</span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> points:          <span class="co"># freeze the last pendulum, drop the moving dots</span></span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>            p.set_data([], [])</span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(a <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>            fills[c].set_data(<span class="op">*</span>level_set(fill_H[c]))</span>
-<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [rod, bob] <span class="op">+</span> curves <span class="op">+</span> points <span class="op">+</span> fills</span>
-<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>anim <span class="op">=</span> FuncAnimation(fig, update, frames<span class="op">=</span>frames, interval<span class="op">=</span><span class="dv">60</span>, blit<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>plt.close(fig)</span>
-<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>save_gif(anim, <span class="st">"images/anim-phase-space.gif"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> update(frame):</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    kind, a, b <span class="op">=</span> frame</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> kind <span class="op">==</span> <span class="st">"run"</span>:</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>        i, j <span class="op">=</span> a, <span class="bu">min</span>(b, <span class="bu">len</span>(t) <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>        rod.set_data([<span class="dv">0</span>, np.sin(traj[j, i, <span class="dv">0</span>])], [<span class="dv">0</span>, <span class="op">-</span>np.cos(traj[j, i, <span class="dv">0</span>])])</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>        bob.set_data([np.sin(traj[j, i, <span class="dv">0</span>])], [<span class="op">-</span>np.cos(traj[j, i, <span class="dv">0</span>])])</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>        rod.set_color(COLORS[i])</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>        bob.set_color(COLORS[i])</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>        curves[i].set_data(traj[:j <span class="op">+</span> <span class="dv">1</span>, i, <span class="dv">0</span>], traj[:j <span class="op">+</span> <span class="dv">1</span>, i, <span class="dv">1</span>])</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>        points[i].set_data([traj[j, i, <span class="dv">0</span>]], [traj[j, i, <span class="dv">1</span>]])</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> points:          <span class="co"># freeze the last pendulum, drop the moving dots</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>            p.set_data([], [])</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(a <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>            fills[c].set_data(<span class="op">*</span>level_set(fill_H[c]))</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [rod, bob] <span class="op">+</span> curves <span class="op">+</span> points <span class="op">+</span> fills</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>anim <span class="op">=</span> FuncAnimation(fig, update, frames<span class="op">=</span>frames, interval<span class="op">=</span><span class="dv">120</span>, blit<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>plt.close(fig)</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>save_gif(anim, <span class="st">"images/anim-phase-space.gif"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="quarto-figure quarto-figure-center">
@@ -629,7 +622,7 @@ Figure&nbsp;1: State (top) vs.&nbsp;action-angle coordinates (bottom): <span cla
 </div>
 </div>
 </div>
-<p>As we can see what is super interesting is that we get a representation of the trajectory where we de-untangled the “static / energy” and the dynamic part : when we have done the projection only the angle is moving during integration. What is also fun is that by injecting some energy into the representation (<span class="math inline">\(\hat{\kI} = \kI + \epsilon\)</span>) we have a new trajectory at the same relative time (the angle will represent the time in the period, like if you are at <span class="math inline">\(\kalpha = \pi\)</span> you will be also at the half of the period on the new trajectory) and get a fully new trajectory.</p>
+<p>As we can see what is super interesting is that we get a representation of the trajectory where we de-untangled the “static / energy” and the dynamic part : when we have done the projection only the angle is moving during integration.</p>
 </section>
 <section id="from-action-angle-to-state" class="level4" data-number="2.2.2">
 <h4 data-number="2.2.2" class="anchored" data-anchor-id="from-action-angle-to-state"><span class="header-section-number">2.2.2</span> From action-angle to state</h4>
@@ -740,7 +733,7 @@ state recovered to 5.4e-15</code></pre>
 <img src="action-angle-tuto_files/figure-html/fig-roundtrip-output-1.png" class="quarto-figure quarto-figure-center figure-img" width="799" height="351">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-roundtrip-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Decoded state (thin line) over the original (thick, faded) — any mismatch would show as a fringe of colour.
+Figure&nbsp;2: Decoded state (thin line) over the original (thick, faded).
 </figcaption>
 </figure>
 </div>
@@ -1465,281 +1458,276 @@ Figure&nbsp;2: Decoded state (thin line) over the original (thick, faded) — an
 <span id="cb17-269"><a href="#cb17-269" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-272"><a href="#cb17-272" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
 <span id="cb17-273"><a href="#cb17-273" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: draw-phase-space</span></span>
-<span id="cb17-274"><a href="#cb17-274" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> level_set(H, n<span class="op">=</span><span class="dv">300</span>):</span>
+<span id="cb17-274"><a href="#cb17-274" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> level_set(H, n<span class="op">=</span><span class="dv">200</span>):</span>
 <span id="cb17-275"><a href="#cb17-275" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""The H level set of the phase space: thetadot = +- sqrt(2 (H - 1 + cos theta)),</span></span>
 <span id="cb17-276"><a href="#cb17-276" aria-hidden="true" tabindex="-1"></a><span class="co">    walked out along the top branch and back along the bottom one, so the curve closes."""</span></span>
 <span id="cb17-277"><a href="#cb17-277" aria-hidden="true" tabindex="-1"></a>    th <span class="op">=</span> np.linspace(<span class="op">-</span>np.arccos(<span class="dv">1</span> <span class="op">-</span> H), np.arccos(<span class="dv">1</span> <span class="op">-</span> H), n) <span class="co"># Min-max theta values </span></span>
-<span id="cb17-278"><a href="#cb17-278" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> np.sqrt(np.clip(<span class="dv">2</span> <span class="op">*</span> (H <span class="op">-</span> <span class="dv">1</span> <span class="op">+</span> np.cos(th)), <span class="dv">0</span>, <span class="va">None</span>)) <span class="co"># (theta, H) -&gt; theta dot</span></span>
-<span id="cb17-279"><a href="#cb17-279" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.concatenate([th, th[::<span class="op">-</span><span class="dv">1</span>]]), np.concatenate([v, <span class="op">-</span>v[::<span class="op">-</span><span class="dv">1</span>]])</span>
-<span id="cb17-280"><a href="#cb17-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb17-281"><a href="#cb17-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-278"><a href="#cb17-278" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> np.sqrt(<span class="dv">2</span> <span class="op">*</span> (H <span class="op">-</span> <span class="dv">1</span> <span class="op">+</span> np.cos(th))) <span class="co"># (theta, H) -&gt; theta dot</span></span>
+<span id="cb17-279"><a href="#cb17-279" aria-hidden="true" tabindex="-1"></a>    v[<span class="dv">0</span>] <span class="op">=</span> v[<span class="op">-</span><span class="dv">1</span>] <span class="op">=</span> <span class="dv">0</span> <span class="co"># We have numerical erros at the extrema ~ nan</span></span>
+<span id="cb17-280"><a href="#cb17-280" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.concatenate([th, th[::<span class="op">-</span><span class="dv">1</span>]]), np.concatenate([v, <span class="op">-</span>v[::<span class="op">-</span><span class="dv">1</span>]])</span>
+<span id="cb17-281"><a href="#cb17-281" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb17-282"><a href="#cb17-282" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-283"><a href="#cb17-283" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-286"><a href="#cb17-286" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb17-287"><a href="#cb17-287" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: anim-phase-space</span></span>
-<span id="cb17-288"><a href="#cb17-288" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
-<span id="cb17-289"><a href="#cb17-289" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-summary: "Show plotting code"</span></span>
-<span id="cb17-290"><a href="#cb17-290" aria-hidden="true" tabindex="-1"></a><span class="co">#| output: false</span></span>
-<span id="cb17-291"><a href="#cb17-291" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> level_set(H, n<span class="op">=</span><span class="dv">300</span>):</span>
-<span id="cb17-292"><a href="#cb17-292" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""The H level set of the phase space: thetadot = +- sqrt(2 (H - 1 + cos theta)),</span></span>
-<span id="cb17-293"><a href="#cb17-293" aria-hidden="true" tabindex="-1"></a><span class="co">    walked out along the top branch and back along the bottom one, so the curve closes."""</span></span>
-<span id="cb17-294"><a href="#cb17-294" aria-hidden="true" tabindex="-1"></a>    th <span class="op">=</span> np.linspace(<span class="op">-</span>np.arccos(<span class="dv">1</span> <span class="op">-</span> H), np.arccos(<span class="dv">1</span> <span class="op">-</span> H), n)</span>
-<span id="cb17-295"><a href="#cb17-295" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> np.sqrt(np.clip(<span class="dv">2</span> <span class="op">*</span> (H <span class="op">-</span> <span class="dv">1</span> <span class="op">+</span> np.cos(th)), <span class="dv">0</span>, <span class="va">None</span>))</span>
-<span id="cb17-296"><a href="#cb17-296" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.concatenate([th, th[::<span class="op">-</span><span class="dv">1</span>]]), np.concatenate([v, <span class="op">-</span>v[::<span class="op">-</span><span class="dv">1</span>]])</span>
-<span id="cb17-297"><a href="#cb17-297" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-298"><a href="#cb17-298" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-299"><a href="#cb17-299" aria-hidden="true" tabindex="-1"></a>stride <span class="op">=</span> <span class="dv">7</span>          <span class="co"># four trajectories run one after the other here, so animate coarser</span></span>
-<span id="cb17-300"><a href="#cb17-300" aria-hidden="true" tabindex="-1"></a>dt <span class="op">=</span> t[<span class="dv">1</span>] <span class="op">-</span> t[<span class="dv">0</span>]</span>
-<span id="cb17-301"><a href="#cb17-301" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-302"><a href="#cb17-302" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.8</span>))</span>
-<span id="cb17-303"><a href="#cb17-303" aria-hidden="true" tabindex="-1"></a>gs <span class="op">=</span> fig.add_gridspec(<span class="dv">1</span>, <span class="dv">2</span>, width_ratios<span class="op">=</span>[<span class="dv">1</span>, <span class="fl">1.4</span>], wspace<span class="op">=</span><span class="fl">.25</span>)</span>
-<span id="cb17-304"><a href="#cb17-304" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-305"><a href="#cb17-305" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> fig.add_subplot(gs[<span class="dv">0</span>, <span class="dv">0</span>])</span>
-<span id="cb17-306"><a href="#cb17-306" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlim<span class="op">=</span>(<span class="op">-</span><span class="fl">1.4</span>, <span class="fl">1.4</span>), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">1.4</span>, <span class="fl">1.4</span>), xticks<span class="op">=</span>[], yticks<span class="op">=</span>[], title<span class="op">=</span><span class="st">"one swing at a time"</span>)</span>
-<span id="cb17-307"><a href="#cb17-307" aria-hidden="true" tabindex="-1"></a>ax.set_aspect(<span class="st">"equal"</span>)</span>
-<span id="cb17-308"><a href="#cb17-308" aria-hidden="true" tabindex="-1"></a>ax.plot(<span class="dv">0</span>, <span class="dv">0</span>, <span class="st">"k+"</span>, ms<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb17-309"><a href="#cb17-309" aria-hidden="true" tabindex="-1"></a>rod, <span class="op">=</span> ax.plot([], [], <span class="st">"-"</span>, lw<span class="op">=</span><span class="fl">1.5</span>)</span>
-<span id="cb17-310"><a href="#cb17-310" aria-hidden="true" tabindex="-1"></a>bob, <span class="op">=</span> ax.plot([], [], <span class="st">"o"</span>, ms<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb17-311"><a href="#cb17-311" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-312"><a href="#cb17-312" aria-hidden="true" tabindex="-1"></a>axp <span class="op">=</span> fig.add_subplot(gs[<span class="dv">0</span>, <span class="dv">1</span>])</span>
-<span id="cb17-313"><a href="#cb17-313" aria-hidden="true" tabindex="-1"></a>axp.plot(<span class="op">*</span>level_set(<span class="fl">1.9999</span>), <span class="st">"k--"</span>, lw<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">.5</span>)</span>
-<span id="cb17-314"><a href="#cb17-314" aria-hidden="true" tabindex="-1"></a>axp.annotate(<span class="st">"separatrix, $H = 2$"</span>, (<span class="dv">0</span>, <span class="dv">2</span>), fontsize<span class="op">=</span><span class="dv">8</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"bottom"</span>)</span>
-<span id="cb17-315"><a href="#cb17-315" aria-hidden="true" tabindex="-1"></a>fills <span class="op">=</span> [axp.plot([], [], <span class="st">"-"</span>, color<span class="op">=</span><span class="st">"0.75"</span>, lw<span class="op">=</span><span class="fl">.7</span>, zorder<span class="op">=</span><span class="dv">0</span>)[<span class="dv">0</span>] <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">24</span>)]</span>
-<span id="cb17-316"><a href="#cb17-316" aria-hidden="true" tabindex="-1"></a>fill_H <span class="op">=</span> np.linspace(<span class="fl">0.05</span>, <span class="fl">1.95</span>, <span class="bu">len</span>(fills))</span>
-<span id="cb17-317"><a href="#cb17-317" aria-hidden="true" tabindex="-1"></a>curves <span class="op">=</span> [axp.plot([], [], <span class="st">"-"</span>, color<span class="op">=</span>c, lw<span class="op">=</span><span class="fl">1.6</span>)[<span class="dv">0</span>] <span class="cf">for</span> c <span class="kw">in</span> COLORS]</span>
-<span id="cb17-318"><a href="#cb17-318" aria-hidden="true" tabindex="-1"></a>points <span class="op">=</span> [axp.plot([], [], <span class="st">"o"</span>, color<span class="op">=</span>c, ms<span class="op">=</span><span class="dv">8</span>)[<span class="dv">0</span>] <span class="cf">for</span> c <span class="kw">in</span> COLORS]</span>
-<span id="cb17-319"><a href="#cb17-319" aria-hidden="true" tabindex="-1"></a>axp.<span class="bu">set</span>(xlim<span class="op">=</span>(<span class="op">-</span>np.pi, np.pi), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">2.35</span>, <span class="fl">2.35</span>), xlabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, ylabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$\d</span><span class="vs">ot</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>,</span>
-<span id="cb17-320"><a href="#cb17-320" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">"phase space: one trajectory, one closed curve"</span>)</span>
-<span id="cb17-321"><a href="#cb17-321" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-322"><a href="#cb17-322" aria-hidden="true" tabindex="-1"></a><span class="co"># swing each pendulum for exactly one period, tracing its curve, then keep the curve and</span></span>
-<span id="cb17-323"><a href="#cb17-323" aria-hidden="true" tabindex="-1"></a><span class="co"># move to the next one. Once the four are drawn, fill in the levels in between.</span></span>
-<span id="cb17-324"><a href="#cb17-324" aria-hidden="true" tabindex="-1"></a>frames <span class="op">=</span> [(<span class="st">"run"</span>, i, j) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(theta0))</span>
-<span id="cb17-325"><a href="#cb17-325" aria-hidden="true" tabindex="-1"></a>          <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">int</span>(T0[i] <span class="op">/</span> dt) <span class="op">+</span> <span class="dv">2</span>, stride)]</span>
-<span id="cb17-326"><a href="#cb17-326" aria-hidden="true" tabindex="-1"></a>frames <span class="op">+=</span> [(<span class="st">"fill"</span>, c, <span class="dv">0</span>) <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(fills))]</span>
-<span id="cb17-327"><a href="#cb17-327" aria-hidden="true" tabindex="-1"></a>frames <span class="op">+=</span> [(<span class="st">"fill"</span>, <span class="bu">len</span>(fills) <span class="op">-</span> <span class="dv">1</span>, <span class="dv">0</span>)] <span class="op">*</span> <span class="dv">8</span>          <span class="co"># hold on the finished picture</span></span>
-<span id="cb17-328"><a href="#cb17-328" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-329"><a href="#cb17-329" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-330"><a href="#cb17-330" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> update(frame):</span>
-<span id="cb17-331"><a href="#cb17-331" aria-hidden="true" tabindex="-1"></a>    kind, a, b <span class="op">=</span> frame</span>
-<span id="cb17-332"><a href="#cb17-332" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> kind <span class="op">==</span> <span class="st">"run"</span>:</span>
-<span id="cb17-333"><a href="#cb17-333" aria-hidden="true" tabindex="-1"></a>        i, j <span class="op">=</span> a, <span class="bu">min</span>(b, <span class="bu">len</span>(t) <span class="op">-</span> <span class="dv">1</span>)</span>
-<span id="cb17-334"><a href="#cb17-334" aria-hidden="true" tabindex="-1"></a>        rod.set_data([<span class="dv">0</span>, np.sin(traj[j, i, <span class="dv">0</span>])], [<span class="dv">0</span>, <span class="op">-</span>np.cos(traj[j, i, <span class="dv">0</span>])])</span>
-<span id="cb17-335"><a href="#cb17-335" aria-hidden="true" tabindex="-1"></a>        bob.set_data([np.sin(traj[j, i, <span class="dv">0</span>])], [<span class="op">-</span>np.cos(traj[j, i, <span class="dv">0</span>])])</span>
-<span id="cb17-336"><a href="#cb17-336" aria-hidden="true" tabindex="-1"></a>        rod.set_color(COLORS[i])</span>
-<span id="cb17-337"><a href="#cb17-337" aria-hidden="true" tabindex="-1"></a>        bob.set_color(COLORS[i])</span>
-<span id="cb17-338"><a href="#cb17-338" aria-hidden="true" tabindex="-1"></a>        curves[i].set_data(traj[:j <span class="op">+</span> <span class="dv">1</span>, i, <span class="dv">0</span>], traj[:j <span class="op">+</span> <span class="dv">1</span>, i, <span class="dv">1</span>])</span>
-<span id="cb17-339"><a href="#cb17-339" aria-hidden="true" tabindex="-1"></a>        points[i].set_data([traj[j, i, <span class="dv">0</span>]], [traj[j, i, <span class="dv">1</span>]])</span>
-<span id="cb17-340"><a href="#cb17-340" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb17-341"><a href="#cb17-341" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> points:          <span class="co"># freeze the last pendulum, drop the moving dots</span></span>
-<span id="cb17-342"><a href="#cb17-342" aria-hidden="true" tabindex="-1"></a>            p.set_data([], [])</span>
-<span id="cb17-343"><a href="#cb17-343" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(a <span class="op">+</span> <span class="dv">1</span>):</span>
-<span id="cb17-344"><a href="#cb17-344" aria-hidden="true" tabindex="-1"></a>            fills[c].set_data(<span class="op">*</span>level_set(fill_H[c]))</span>
-<span id="cb17-345"><a href="#cb17-345" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [rod, bob] <span class="op">+</span> curves <span class="op">+</span> points <span class="op">+</span> fills</span>
-<span id="cb17-346"><a href="#cb17-346" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-284"><a href="#cb17-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-287"><a href="#cb17-287" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb17-288"><a href="#cb17-288" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: anim-phase-space</span></span>
+<span id="cb17-289"><a href="#cb17-289" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb17-290"><a href="#cb17-290" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-summary: "Show plotting code"</span></span>
+<span id="cb17-291"><a href="#cb17-291" aria-hidden="true" tabindex="-1"></a><span class="co">#| output: false</span></span>
+<span id="cb17-292"><a href="#cb17-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-293"><a href="#cb17-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-294"><a href="#cb17-294" aria-hidden="true" tabindex="-1"></a>stride <span class="op">=</span> <span class="dv">7</span>          <span class="co"># four trajectories run one after the other here, so animate coarser</span></span>
+<span id="cb17-295"><a href="#cb17-295" aria-hidden="true" tabindex="-1"></a>dt <span class="op">=</span> t[<span class="dv">1</span>] <span class="op">-</span> t[<span class="dv">0</span>]</span>
+<span id="cb17-296"><a href="#cb17-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-297"><a href="#cb17-297" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.8</span>))</span>
+<span id="cb17-298"><a href="#cb17-298" aria-hidden="true" tabindex="-1"></a>gs <span class="op">=</span> fig.add_gridspec(<span class="dv">1</span>, <span class="dv">2</span>, width_ratios<span class="op">=</span>[<span class="dv">1</span>, <span class="fl">1.4</span>], wspace<span class="op">=</span><span class="fl">.25</span>)</span>
+<span id="cb17-299"><a href="#cb17-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-300"><a href="#cb17-300" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> fig.add_subplot(gs[<span class="dv">0</span>, <span class="dv">0</span>])</span>
+<span id="cb17-301"><a href="#cb17-301" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlim<span class="op">=</span>(<span class="op">-</span><span class="fl">1.4</span>, <span class="fl">1.4</span>), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">1.4</span>, <span class="fl">1.4</span>), xticks<span class="op">=</span>[], yticks<span class="op">=</span>[], title<span class="op">=</span><span class="st">"one swing at a time"</span>)</span>
+<span id="cb17-302"><a href="#cb17-302" aria-hidden="true" tabindex="-1"></a>ax.set_aspect(<span class="st">"equal"</span>)</span>
+<span id="cb17-303"><a href="#cb17-303" aria-hidden="true" tabindex="-1"></a>ax.plot(<span class="dv">0</span>, <span class="dv">0</span>, <span class="st">"k+"</span>, ms<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb17-304"><a href="#cb17-304" aria-hidden="true" tabindex="-1"></a>rod, <span class="op">=</span> ax.plot([], [], <span class="st">"-"</span>, lw<span class="op">=</span><span class="fl">1.5</span>)</span>
+<span id="cb17-305"><a href="#cb17-305" aria-hidden="true" tabindex="-1"></a>bob, <span class="op">=</span> ax.plot([], [], <span class="st">"o"</span>, ms<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb17-306"><a href="#cb17-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-307"><a href="#cb17-307" aria-hidden="true" tabindex="-1"></a>axp <span class="op">=</span> fig.add_subplot(gs[<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb17-308"><a href="#cb17-308" aria-hidden="true" tabindex="-1"></a>axp.plot(<span class="op">*</span>level_set(<span class="fl">1.9999</span>), <span class="st">"k--"</span>, lw<span class="op">=</span><span class="dv">1</span>, alpha<span class="op">=</span><span class="fl">.5</span>)</span>
+<span id="cb17-309"><a href="#cb17-309" aria-hidden="true" tabindex="-1"></a>axp.annotate(<span class="st">"separatrix, $H = 2$"</span>, (<span class="dv">0</span>, <span class="dv">2</span>), fontsize<span class="op">=</span><span class="dv">8</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"bottom"</span>)</span>
+<span id="cb17-310"><a href="#cb17-310" aria-hidden="true" tabindex="-1"></a>fills <span class="op">=</span> [axp.plot([], [], <span class="st">"-"</span>, color<span class="op">=</span><span class="st">"0.75"</span>, lw<span class="op">=</span><span class="fl">.7</span>, zorder<span class="op">=</span><span class="dv">0</span>)[<span class="dv">0</span>] <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">24</span>)]</span>
+<span id="cb17-311"><a href="#cb17-311" aria-hidden="true" tabindex="-1"></a>fill_H <span class="op">=</span> np.linspace(<span class="fl">0.05</span>, <span class="fl">1.95</span>, <span class="bu">len</span>(fills))</span>
+<span id="cb17-312"><a href="#cb17-312" aria-hidden="true" tabindex="-1"></a>curves <span class="op">=</span> [axp.plot([], [], <span class="st">"-"</span>, color<span class="op">=</span>c, lw<span class="op">=</span><span class="fl">1.6</span>)[<span class="dv">0</span>] <span class="cf">for</span> c <span class="kw">in</span> COLORS]</span>
+<span id="cb17-313"><a href="#cb17-313" aria-hidden="true" tabindex="-1"></a>points <span class="op">=</span> [axp.plot([], [], <span class="st">"o"</span>, color<span class="op">=</span>c, ms<span class="op">=</span><span class="dv">8</span>)[<span class="dv">0</span>] <span class="cf">for</span> c <span class="kw">in</span> COLORS]</span>
+<span id="cb17-314"><a href="#cb17-314" aria-hidden="true" tabindex="-1"></a>axp.<span class="bu">set</span>(xlim<span class="op">=</span>(<span class="op">-</span>np.pi, np.pi), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">2.35</span>, <span class="fl">2.35</span>), xlabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, ylabel<span class="op">=</span><span class="vs">r"</span><span class="dv">$\d</span><span class="vs">ot</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>,</span>
+<span id="cb17-315"><a href="#cb17-315" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">"phase space: one trajectory, one closed curve"</span>)</span>
+<span id="cb17-316"><a href="#cb17-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-317"><a href="#cb17-317" aria-hidden="true" tabindex="-1"></a><span class="co"># swing each pendulum for exactly one period, tracing its curve, then keep the curve and</span></span>
+<span id="cb17-318"><a href="#cb17-318" aria-hidden="true" tabindex="-1"></a><span class="co"># move to the next one. Once the four are drawn, fill in the levels in between.</span></span>
+<span id="cb17-319"><a href="#cb17-319" aria-hidden="true" tabindex="-1"></a>frames <span class="op">=</span> [(<span class="st">"run"</span>, i, j) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(theta0))</span>
+<span id="cb17-320"><a href="#cb17-320" aria-hidden="true" tabindex="-1"></a>          <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">0</span>, <span class="bu">int</span>(T0[i] <span class="op">/</span> dt), stride)) <span class="op">+</span> [<span class="bu">int</span>(T0[i] <span class="op">/</span> dt)]]</span>
+<span id="cb17-321"><a href="#cb17-321" aria-hidden="true" tabindex="-1"></a>frames <span class="op">+=</span> [(<span class="st">"fill"</span>, c, <span class="dv">0</span>) <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(fills))]</span>
+<span id="cb17-322"><a href="#cb17-322" aria-hidden="true" tabindex="-1"></a>frames <span class="op">+=</span> [(<span class="st">"fill"</span>, <span class="bu">len</span>(fills) <span class="op">-</span> <span class="dv">1</span>, <span class="dv">0</span>)] <span class="op">*</span> <span class="dv">8</span>          <span class="co"># hold on the finished picture</span></span>
+<span id="cb17-323"><a href="#cb17-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-324"><a href="#cb17-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-325"><a href="#cb17-325" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> update(frame):</span>
+<span id="cb17-326"><a href="#cb17-326" aria-hidden="true" tabindex="-1"></a>    kind, a, b <span class="op">=</span> frame</span>
+<span id="cb17-327"><a href="#cb17-327" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> kind <span class="op">==</span> <span class="st">"run"</span>:</span>
+<span id="cb17-328"><a href="#cb17-328" aria-hidden="true" tabindex="-1"></a>        i, j <span class="op">=</span> a, <span class="bu">min</span>(b, <span class="bu">len</span>(t) <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb17-329"><a href="#cb17-329" aria-hidden="true" tabindex="-1"></a>        rod.set_data([<span class="dv">0</span>, np.sin(traj[j, i, <span class="dv">0</span>])], [<span class="dv">0</span>, <span class="op">-</span>np.cos(traj[j, i, <span class="dv">0</span>])])</span>
+<span id="cb17-330"><a href="#cb17-330" aria-hidden="true" tabindex="-1"></a>        bob.set_data([np.sin(traj[j, i, <span class="dv">0</span>])], [<span class="op">-</span>np.cos(traj[j, i, <span class="dv">0</span>])])</span>
+<span id="cb17-331"><a href="#cb17-331" aria-hidden="true" tabindex="-1"></a>        rod.set_color(COLORS[i])</span>
+<span id="cb17-332"><a href="#cb17-332" aria-hidden="true" tabindex="-1"></a>        bob.set_color(COLORS[i])</span>
+<span id="cb17-333"><a href="#cb17-333" aria-hidden="true" tabindex="-1"></a>        curves[i].set_data(traj[:j <span class="op">+</span> <span class="dv">1</span>, i, <span class="dv">0</span>], traj[:j <span class="op">+</span> <span class="dv">1</span>, i, <span class="dv">1</span>])</span>
+<span id="cb17-334"><a href="#cb17-334" aria-hidden="true" tabindex="-1"></a>        points[i].set_data([traj[j, i, <span class="dv">0</span>]], [traj[j, i, <span class="dv">1</span>]])</span>
+<span id="cb17-335"><a href="#cb17-335" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb17-336"><a href="#cb17-336" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> points:          <span class="co"># freeze the last pendulum, drop the moving dots</span></span>
+<span id="cb17-337"><a href="#cb17-337" aria-hidden="true" tabindex="-1"></a>            p.set_data([], [])</span>
+<span id="cb17-338"><a href="#cb17-338" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> c <span class="kw">in</span> <span class="bu">range</span>(a <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb17-339"><a href="#cb17-339" aria-hidden="true" tabindex="-1"></a>            fills[c].set_data(<span class="op">*</span>level_set(fill_H[c]))</span>
+<span id="cb17-340"><a href="#cb17-340" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [rod, bob] <span class="op">+</span> curves <span class="op">+</span> points <span class="op">+</span> fills</span>
+<span id="cb17-341"><a href="#cb17-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-342"><a href="#cb17-342" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-343"><a href="#cb17-343" aria-hidden="true" tabindex="-1"></a>anim <span class="op">=</span> FuncAnimation(fig, update, frames<span class="op">=</span>frames, interval<span class="op">=</span><span class="dv">120</span>, blit<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb17-344"><a href="#cb17-344" aria-hidden="true" tabindex="-1"></a>plt.close(fig)</span>
+<span id="cb17-345"><a href="#cb17-345" aria-hidden="true" tabindex="-1"></a>save_gif(anim, <span class="st">"images/anim-phase-space.gif"</span>)</span>
+<span id="cb17-346"><a href="#cb17-346" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb17-347"><a href="#cb17-347" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-348"><a href="#cb17-348" aria-hidden="true" tabindex="-1"></a>anim <span class="op">=</span> FuncAnimation(fig, update, frames<span class="op">=</span>frames, interval<span class="op">=</span><span class="dv">60</span>, blit<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb17-349"><a href="#cb17-349" aria-hidden="true" tabindex="-1"></a>plt.close(fig)</span>
-<span id="cb17-350"><a href="#cb17-350" aria-hidden="true" tabindex="-1"></a>save_gif(anim, <span class="st">"images/anim-phase-space.gif"</span>)</span>
-<span id="cb17-351"><a href="#cb17-351" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb17-352"><a href="#cb17-352" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-353"><a href="#cb17-353" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/anim-phase-space.gif)</span>{fig-align="center"}</span>
-<span id="cb17-354"><a href="#cb17-354" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-355"><a href="#cb17-355" aria-hidden="true" tabindex="-1"></a>*Each pendulum swings for exactly one period, tracing its closed curve in phase space; the remaining energy levels are filled in once all four are drawn.*</span>
-<span id="cb17-356"><a href="#cb17-356" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-357"><a href="#cb17-357" aria-hidden="true" tabindex="-1"></a><span class="fu">### Navigate in the phase space</span></span>
-<span id="cb17-358"><a href="#cb17-358" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-359"><a href="#cb17-359" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/aa-pipe.png)</span>{fig-align="center"}</span>
-<span id="cb17-360"><a href="#cb17-360" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-361"><a href="#cb17-361" aria-hidden="true" tabindex="-1"></a><span class="fu">#### From state to action-angle</span></span>
-<span id="cb17-362"><a href="#cb17-362" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-363"><a href="#cb17-363" aria-hidden="true" tabindex="-1"></a>The idea of the action-angle coordinates is that we can represent our position in the phase space from the action $\kI$, which determines on which level of energy you are on, and the angle $\kalpha$, which is the point you are on the phase space. During one period we do a full rotation on the phase space level-set.</span>
+<span id="cb17-348"><a href="#cb17-348" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/anim-phase-space.gif)</span>{fig-align="center"}</span>
+<span id="cb17-349"><a href="#cb17-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-350"><a href="#cb17-350" aria-hidden="true" tabindex="-1"></a>*Each pendulum swings for exactly one period, tracing its closed curve in phase space; the remaining energy levels are filled in once all four are drawn.*</span>
+<span id="cb17-351"><a href="#cb17-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-352"><a href="#cb17-352" aria-hidden="true" tabindex="-1"></a><span class="fu">### Navigate in the phase space</span></span>
+<span id="cb17-353"><a href="#cb17-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-354"><a href="#cb17-354" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/aa-pipe.png)</span>{fig-align="center"}</span>
+<span id="cb17-355"><a href="#cb17-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-356"><a href="#cb17-356" aria-hidden="true" tabindex="-1"></a><span class="fu">#### From state to action-angle</span></span>
+<span id="cb17-357"><a href="#cb17-357" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-358"><a href="#cb17-358" aria-hidden="true" tabindex="-1"></a>The idea of the action-angle coordinates is that we can represent our position in the phase space from the action $\kI$, which determines on which level of energy you are on, and the angle $\kalpha$, which is the point you are on the phase space. During one period we do a full rotation on the phase space level-set.</span>
+<span id="cb17-359"><a href="#cb17-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-360"><a href="#cb17-360" aria-hidden="true" tabindex="-1"></a>**Action.**</span>
+<span id="cb17-361"><a href="#cb17-361" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb17-362"><a href="#cb17-362" aria-hidden="true" tabindex="-1"></a>\kI = \frac{8}{\pi}\Big<span class="co">[</span><span class="ot">E(k) - (1-k^2)K(k)\Big</span><span class="co">]</span> \;\in\; \left[0, \tfrac{8}{\pi}\right)</span>
+<span id="cb17-363"><a href="#cb17-363" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb17-364"><a href="#cb17-364" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-365"><a href="#cb17-365" aria-hidden="true" tabindex="-1"></a>**Action.**</span>
+<span id="cb17-365"><a href="#cb17-365" aria-hidden="true" tabindex="-1"></a>**Angle.** Let $\varphi$ be the Jacobi amplitude, recovered from the state by</span>
 <span id="cb17-366"><a href="#cb17-366" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-367"><a href="#cb17-367" aria-hidden="true" tabindex="-1"></a>\kI = \frac{8}{\pi}\Big<span class="co">[</span><span class="ot">E(k) - (1-k^2)K(k)\Big</span><span class="co">]</span> \;\in\; \left[0, \tfrac{8}{\pi}\right)</span>
-<span id="cb17-368"><a href="#cb17-368" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-369"><a href="#cb17-369" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-370"><a href="#cb17-370" aria-hidden="true" tabindex="-1"></a>**Angle.** Let $\varphi$ be the Jacobi amplitude, recovered from the state by</span>
-<span id="cb17-371"><a href="#cb17-371" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-372"><a href="#cb17-372" aria-hidden="true" tabindex="-1"></a>\kalpha = \frac{\pi}{2\,K(k)}\, F(\varphi, k),</span>
-<span id="cb17-373"><a href="#cb17-373" aria-hidden="true" tabindex="-1"></a>\qquad</span>
-<span id="cb17-374"><a href="#cb17-374" aria-hidden="true" tabindex="-1"></a>\varphi = \operatorname{atan2}<span class="sc">\!</span>\left(\sin\tfrac{\theta}{2},\ \tfrac{\dot\theta}{2}\right)</span>
-<span id="cb17-375"><a href="#cb17-375" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-376"><a href="#cb17-376" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-377"><a href="#cb17-377" aria-hidden="true" tabindex="-1"></a>where $E$ is the elliptic integral of the second kind:</span>
-<span id="cb17-378"><a href="#cb17-378" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-379"><a href="#cb17-379" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-380"><a href="#cb17-380" aria-hidden="true" tabindex="-1"></a>E(k) = \int_0^{\pi/2} \sqrt{1 - k^2 \sin^2 t}\;dt</span>
-<span id="cb17-381"><a href="#cb17-381" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-382"><a href="#cb17-382" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-383"><a href="#cb17-383" aria-hidden="true" tabindex="-1"></a>**To summarize:** from the state $(\theta, \dot \theta)$ we get the energy $\kH$ and can derive $\kI$ (which is constant for the full trajectory of states) and $\kalpha$ which is varying linearly through time.</span>
-<span id="cb17-384"><a href="#cb17-384" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-387"><a href="#cb17-387" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb17-388"><a href="#cb17-388" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: action-angle</span></span>
-<span id="cb17-389"><a href="#cb17-389" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> action(k):</span>
-<span id="cb17-390"><a href="#cb17-390" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""I(k) = 8/pi[E(k) - (1 - k^2)K(k)]"""</span></span>
-<span id="cb17-391"><a href="#cb17-391" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> k <span class="op">**</span> <span class="dv">2</span>                      <span class="co"># scipy takes the parameter m = k^2, as for ellipk above</span></span>
-<span id="cb17-392"><a href="#cb17-392" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">8</span> <span class="op">/</span> np.pi <span class="op">*</span> (ellipe(m) <span class="op">-</span> (<span class="dv">1</span> <span class="op">-</span> m) <span class="op">*</span> ellipk(m))</span>
-<span id="cb17-393"><a href="#cb17-393" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-394"><a href="#cb17-394" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-395"><a href="#cb17-395" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> angle(k, x):</span>
-<span id="cb17-396"><a href="#cb17-396" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb17-397"><a href="#cb17-397" aria-hidden="true" tabindex="-1"></a><span class="co">     alpha(k) = [pi / (2 * K(k))] * F(phi(theta, thetadot), k)</span></span>
-<span id="cb17-398"><a href="#cb17-398" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb17-399"><a href="#cb17-399" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> k <span class="op">**</span> <span class="dv">2</span></span>
-<span id="cb17-400"><a href="#cb17-400" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> np.arctan2(np.sin(x[..., <span class="dv">0</span>] <span class="op">/</span> <span class="dv">2</span>), x[..., <span class="dv">1</span>] <span class="op">/</span> <span class="dv">2</span>)</span>
-<span id="cb17-401"><a href="#cb17-401" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.pi <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> ellipk(m)) <span class="op">*</span> ellipkinc(phi, m)</span>
-<span id="cb17-402"><a href="#cb17-402" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb17-403"><a href="#cb17-403" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-406"><a href="#cb17-406" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb17-407"><a href="#cb17-407" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: action-angle-traj</span></span>
-<span id="cb17-408"><a href="#cb17-408" aria-hidden="true" tabindex="-1"></a>traj_H <span class="op">=</span> energy(traj) <span class="co"># (T, n_traj)</span></span>
-<span id="cb17-409"><a href="#cb17-409" aria-hidden="true" tabindex="-1"></a>traj_k <span class="op">=</span> np.sqrt(traj_H <span class="op">/</span> <span class="dv">2</span>)</span>
-<span id="cb17-410"><a href="#cb17-410" aria-hidden="true" tabindex="-1"></a>traj_I <span class="op">=</span> action(traj_k)</span>
-<span id="cb17-411"><a href="#cb17-411" aria-hidden="true" tabindex="-1"></a>traj_alpha <span class="op">=</span> angle(traj_k, traj)</span>
-<span id="cb17-412"><a href="#cb17-412" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb17-413"><a href="#cb17-413" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-416"><a href="#cb17-416" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb17-417"><a href="#cb17-417" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-action-angle</span></span>
-<span id="cb17-418"><a href="#cb17-418" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "State (top) vs. action-angle coordinates (bottom): $\\theta,\\dot\\theta$ oscillate while $\\kI$ stays flat and $\\kalpha$ ramps linearly."</span></span>
-<span id="cb17-419"><a href="#cb17-419" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-align: center</span></span>
-<span id="cb17-420"><a href="#cb17-420" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
-<span id="cb17-421"><a href="#cb17-421" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-summary: "Show plotting code"</span></span>
-<span id="cb17-422"><a href="#cb17-422" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">5</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb17-423"><a href="#cb17-423" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> [(axs[<span class="dv">0</span>, <span class="dv">0</span>], <span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, traj[..., <span class="dv">0</span>]), (axs[<span class="dv">1</span>, <span class="dv">0</span>], <span class="vs">r"</span><span class="dv">$\d</span><span class="vs">ot</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, traj[..., <span class="dv">1</span>]),</span>
-<span id="cb17-424"><a href="#cb17-424" aria-hidden="true" tabindex="-1"></a>        (axs[<span class="dv">0</span>, <span class="dv">1</span>], <span class="vs">r"</span><span class="dv">$</span><span class="vs">I</span><span class="dv">$</span><span class="vs">"</span>, traj_I), (axs[<span class="dv">1</span>, <span class="dv">1</span>], <span class="vs">r"</span><span class="dv">$</span><span class="ch">\a</span><span class="vs">lpha</span><span class="dv">$</span><span class="vs">"</span>, traj_alpha)]</span>
-<span id="cb17-425"><a href="#cb17-425" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a, label, y <span class="kw">in</span> rows:</span>
-<span id="cb17-426"><a href="#cb17-426" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(theta0)):</span>
-<span id="cb17-427"><a href="#cb17-427" aria-hidden="true" tabindex="-1"></a>        a.plot(t, y[:, i], color<span class="op">=</span>COLORS[i], lw<span class="op">=</span><span class="fl">1.2</span>,</span>
-<span id="cb17-428"><a href="#cb17-428" aria-hidden="true" tabindex="-1"></a>               label<span class="op">=</span>(<span class="ss">f"H = </span><span class="sc">{</span>H0[i]<span class="sc">:.2f}</span><span class="ss">,  "</span> <span class="vs">r"</span><span class="dv">$\d</span><span class="vs">ot</span><span class="ch">\a</span><span class="vs">lpha</span><span class="dv">$</span><span class="vs"> = "</span> <span class="ss">f"</span><span class="sc">{</span><span class="dv">2</span> <span class="op">*</span> np<span class="sc">.</span>pi <span class="op">/</span> T0[i]<span class="sc">:.2f}</span><span class="ss">"</span></span>
-<span id="cb17-429"><a href="#cb17-429" aria-hidden="true" tabindex="-1"></a>                      <span class="cf">if</span> a <span class="kw">is</span> axs[<span class="dv">0</span>, <span class="dv">1</span>] <span class="cf">else</span> <span class="va">None</span>))</span>
-<span id="cb17-430"><a href="#cb17-430" aria-hidden="true" tabindex="-1"></a>    a.set_ylabel(label)</span>
-<span id="cb17-431"><a href="#cb17-431" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].set_title(<span class="st">"the state: everything moves"</span>)</span>
-<span id="cb17-432"><a href="#cb17-432" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].set_title(<span class="st">"action - angle: one constant, one ramp"</span>)</span>
-<span id="cb17-433"><a href="#cb17-433" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].set_ylim(<span class="dv">0</span>, <span class="dv">8</span> <span class="op">/</span> np.pi)                    <span class="co"># the whole range of I, so flat is flat</span></span>
-<span id="cb17-434"><a href="#cb17-434" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].axhline(<span class="dv">8</span> <span class="op">/</span> np.pi, color<span class="op">=</span><span class="st">"k"</span>, ls<span class="op">=</span><span class="st">":"</span>, lw<span class="op">=</span><span class="fl">.8</span>)</span>
-<span id="cb17-435"><a href="#cb17-435" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].annotate(<span class="vs">r"</span><span class="dv">$</span><span class="vs">8/</span><span class="er">\</span><span class="vs">pi</span><span class="dv">$</span><span class="vs">, the separatrix"</span>, (t[<span class="dv">0</span>], <span class="dv">8</span> <span class="op">/</span> np.pi), fontsize<span class="op">=</span><span class="dv">8</span>, va<span class="op">=</span><span class="st">"top"</span>)</span>
-<span id="cb17-436"><a href="#cb17-436" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">7</span>, loc<span class="op">=</span><span class="st">"center right"</span>)</span>
-<span id="cb17-437"><a href="#cb17-437" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">1</span>, <span class="dv">1</span>].<span class="bu">set</span>(yticks<span class="op">=</span>[<span class="op">-</span>np.pi, <span class="dv">0</span>, np.pi], yticklabels<span class="op">=</span>[<span class="vs">r"</span><span class="dv">$</span><span class="vs">-</span><span class="er">\</span><span class="vs">pi</span><span class="dv">$</span><span class="vs">"</span>, <span class="st">"0"</span>, <span class="vs">r"</span><span class="dv">$</span><span class="er">\</span><span class="vs">pi</span><span class="dv">$</span><span class="vs">"</span>])</span>
-<span id="cb17-438"><a href="#cb17-438" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a <span class="kw">in</span> axs[<span class="dv">1</span>]:</span>
-<span id="cb17-439"><a href="#cb17-439" aria-hidden="true" tabindex="-1"></a>    a.set_xlabel(<span class="st">"t"</span>)</span>
-<span id="cb17-440"><a href="#cb17-440" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
-<span id="cb17-441"><a href="#cb17-441" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb17-442"><a href="#cb17-442" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb17-443"><a href="#cb17-443" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-444"><a href="#cb17-444" aria-hidden="true" tabindex="-1"></a>As we can see what is super interesting is that we get a representation of the trajectory where we de-untangled the "static / energy" and the dynamic part : when we have done the projection only the angle is moving during integration. What is also fun is that by injecting some energy into the representation ($\hat{\kI} = \kI + \epsilon$) we have a new trajectory at the same relative time (the angle will represent the time in the period, like if you are at $\kalpha = \pi$ you will be also at the half of the period on the new trajectory) and get a fully new trajectory.</span>
-<span id="cb17-445"><a href="#cb17-445" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-446"><a href="#cb17-446" aria-hidden="true" tabindex="-1"></a><span class="fu">#### From action-angle to state</span></span>
+<span id="cb17-367"><a href="#cb17-367" aria-hidden="true" tabindex="-1"></a>\kalpha = \frac{\pi}{2\,K(k)}\, F(\varphi, k),</span>
+<span id="cb17-368"><a href="#cb17-368" aria-hidden="true" tabindex="-1"></a>\qquad</span>
+<span id="cb17-369"><a href="#cb17-369" aria-hidden="true" tabindex="-1"></a>\varphi = \operatorname{atan2}<span class="sc">\!</span>\left(\sin\tfrac{\theta}{2},\ \tfrac{\dot\theta}{2}\right)</span>
+<span id="cb17-370"><a href="#cb17-370" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb17-371"><a href="#cb17-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-372"><a href="#cb17-372" aria-hidden="true" tabindex="-1"></a>where $E$ is the elliptic integral of the second kind:</span>
+<span id="cb17-373"><a href="#cb17-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-374"><a href="#cb17-374" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb17-375"><a href="#cb17-375" aria-hidden="true" tabindex="-1"></a>E(k) = \int_0^{\pi/2} \sqrt{1 - k^2 \sin^2 t}\;dt</span>
+<span id="cb17-376"><a href="#cb17-376" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb17-377"><a href="#cb17-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-378"><a href="#cb17-378" aria-hidden="true" tabindex="-1"></a>**To summarize:** from the state $(\theta, \dot \theta)$ we get the energy $\kH$ and can derive $\kI$ (which is constant for the full trajectory of states) and $\kalpha$ which is varying linearly through time.</span>
+<span id="cb17-379"><a href="#cb17-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-382"><a href="#cb17-382" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb17-383"><a href="#cb17-383" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: action-angle</span></span>
+<span id="cb17-384"><a href="#cb17-384" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> action(k):</span>
+<span id="cb17-385"><a href="#cb17-385" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""I(k) = 8/pi[E(k) - (1 - k^2)K(k)]"""</span></span>
+<span id="cb17-386"><a href="#cb17-386" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> k <span class="op">**</span> <span class="dv">2</span>                      <span class="co"># scipy takes the parameter m = k^2, as for ellipk above</span></span>
+<span id="cb17-387"><a href="#cb17-387" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">8</span> <span class="op">/</span> np.pi <span class="op">*</span> (ellipe(m) <span class="op">-</span> (<span class="dv">1</span> <span class="op">-</span> m) <span class="op">*</span> ellipk(m))</span>
+<span id="cb17-388"><a href="#cb17-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-389"><a href="#cb17-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-390"><a href="#cb17-390" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> angle(k, x):</span>
+<span id="cb17-391"><a href="#cb17-391" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb17-392"><a href="#cb17-392" aria-hidden="true" tabindex="-1"></a><span class="co">     alpha(k) = [pi / (2 * K(k))] * F(phi(theta, thetadot), k)</span></span>
+<span id="cb17-393"><a href="#cb17-393" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb17-394"><a href="#cb17-394" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> k <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb17-395"><a href="#cb17-395" aria-hidden="true" tabindex="-1"></a>    phi <span class="op">=</span> np.arctan2(np.sin(x[..., <span class="dv">0</span>] <span class="op">/</span> <span class="dv">2</span>), x[..., <span class="dv">1</span>] <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb17-396"><a href="#cb17-396" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.pi <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> ellipk(m)) <span class="op">*</span> ellipkinc(phi, m)</span>
+<span id="cb17-397"><a href="#cb17-397" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb17-398"><a href="#cb17-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-401"><a href="#cb17-401" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb17-402"><a href="#cb17-402" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: action-angle-traj</span></span>
+<span id="cb17-403"><a href="#cb17-403" aria-hidden="true" tabindex="-1"></a>traj_H <span class="op">=</span> energy(traj) <span class="co"># (T, n_traj)</span></span>
+<span id="cb17-404"><a href="#cb17-404" aria-hidden="true" tabindex="-1"></a>traj_k <span class="op">=</span> np.sqrt(traj_H <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb17-405"><a href="#cb17-405" aria-hidden="true" tabindex="-1"></a>traj_I <span class="op">=</span> action(traj_k)</span>
+<span id="cb17-406"><a href="#cb17-406" aria-hidden="true" tabindex="-1"></a>traj_alpha <span class="op">=</span> angle(traj_k, traj)</span>
+<span id="cb17-407"><a href="#cb17-407" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb17-408"><a href="#cb17-408" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-411"><a href="#cb17-411" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb17-412"><a href="#cb17-412" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-action-angle</span></span>
+<span id="cb17-413"><a href="#cb17-413" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "State (top) vs. action-angle coordinates (bottom): $\\theta,\\dot\\theta$ oscillate while $\\kI$ stays flat and $\\kalpha$ ramps linearly."</span></span>
+<span id="cb17-414"><a href="#cb17-414" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-align: center</span></span>
+<span id="cb17-415"><a href="#cb17-415" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb17-416"><a href="#cb17-416" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-summary: "Show plotting code"</span></span>
+<span id="cb17-417"><a href="#cb17-417" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">5</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-418"><a href="#cb17-418" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> [(axs[<span class="dv">0</span>, <span class="dv">0</span>], <span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, traj[..., <span class="dv">0</span>]), (axs[<span class="dv">1</span>, <span class="dv">0</span>], <span class="vs">r"</span><span class="dv">$\d</span><span class="vs">ot</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, traj[..., <span class="dv">1</span>]),</span>
+<span id="cb17-419"><a href="#cb17-419" aria-hidden="true" tabindex="-1"></a>        (axs[<span class="dv">0</span>, <span class="dv">1</span>], <span class="vs">r"</span><span class="dv">$</span><span class="vs">I</span><span class="dv">$</span><span class="vs">"</span>, traj_I), (axs[<span class="dv">1</span>, <span class="dv">1</span>], <span class="vs">r"</span><span class="dv">$</span><span class="ch">\a</span><span class="vs">lpha</span><span class="dv">$</span><span class="vs">"</span>, traj_alpha)]</span>
+<span id="cb17-420"><a href="#cb17-420" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a, label, y <span class="kw">in</span> rows:</span>
+<span id="cb17-421"><a href="#cb17-421" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(theta0)):</span>
+<span id="cb17-422"><a href="#cb17-422" aria-hidden="true" tabindex="-1"></a>        a.plot(t, y[:, i], color<span class="op">=</span>COLORS[i], lw<span class="op">=</span><span class="fl">1.2</span>,</span>
+<span id="cb17-423"><a href="#cb17-423" aria-hidden="true" tabindex="-1"></a>               label<span class="op">=</span>(<span class="ss">f"H = </span><span class="sc">{</span>H0[i]<span class="sc">:.2f}</span><span class="ss">,  "</span> <span class="vs">r"</span><span class="dv">$\d</span><span class="vs">ot</span><span class="ch">\a</span><span class="vs">lpha</span><span class="dv">$</span><span class="vs"> = "</span> <span class="ss">f"</span><span class="sc">{</span><span class="dv">2</span> <span class="op">*</span> np<span class="sc">.</span>pi <span class="op">/</span> T0[i]<span class="sc">:.2f}</span><span class="ss">"</span></span>
+<span id="cb17-424"><a href="#cb17-424" aria-hidden="true" tabindex="-1"></a>                      <span class="cf">if</span> a <span class="kw">is</span> axs[<span class="dv">0</span>, <span class="dv">1</span>] <span class="cf">else</span> <span class="va">None</span>))</span>
+<span id="cb17-425"><a href="#cb17-425" aria-hidden="true" tabindex="-1"></a>    a.set_ylabel(label)</span>
+<span id="cb17-426"><a href="#cb17-426" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].set_title(<span class="st">"the state: everything moves"</span>)</span>
+<span id="cb17-427"><a href="#cb17-427" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].set_title(<span class="st">"action - angle: one constant, one ramp"</span>)</span>
+<span id="cb17-428"><a href="#cb17-428" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].set_ylim(<span class="dv">0</span>, <span class="dv">8</span> <span class="op">/</span> np.pi)                    <span class="co"># the whole range of I, so flat is flat</span></span>
+<span id="cb17-429"><a href="#cb17-429" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].axhline(<span class="dv">8</span> <span class="op">/</span> np.pi, color<span class="op">=</span><span class="st">"k"</span>, ls<span class="op">=</span><span class="st">":"</span>, lw<span class="op">=</span><span class="fl">.8</span>)</span>
+<span id="cb17-430"><a href="#cb17-430" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].annotate(<span class="vs">r"</span><span class="dv">$</span><span class="vs">8/</span><span class="er">\</span><span class="vs">pi</span><span class="dv">$</span><span class="vs">, the separatrix"</span>, (t[<span class="dv">0</span>], <span class="dv">8</span> <span class="op">/</span> np.pi), fontsize<span class="op">=</span><span class="dv">8</span>, va<span class="op">=</span><span class="st">"top"</span>)</span>
+<span id="cb17-431"><a href="#cb17-431" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">7</span>, loc<span class="op">=</span><span class="st">"center right"</span>)</span>
+<span id="cb17-432"><a href="#cb17-432" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">1</span>, <span class="dv">1</span>].<span class="bu">set</span>(yticks<span class="op">=</span>[<span class="op">-</span>np.pi, <span class="dv">0</span>, np.pi], yticklabels<span class="op">=</span>[<span class="vs">r"</span><span class="dv">$</span><span class="vs">-</span><span class="er">\</span><span class="vs">pi</span><span class="dv">$</span><span class="vs">"</span>, <span class="st">"0"</span>, <span class="vs">r"</span><span class="dv">$</span><span class="er">\</span><span class="vs">pi</span><span class="dv">$</span><span class="vs">"</span>])</span>
+<span id="cb17-433"><a href="#cb17-433" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a <span class="kw">in</span> axs[<span class="dv">1</span>]:</span>
+<span id="cb17-434"><a href="#cb17-434" aria-hidden="true" tabindex="-1"></a>    a.set_xlabel(<span class="st">"t"</span>)</span>
+<span id="cb17-435"><a href="#cb17-435" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb17-436"><a href="#cb17-436" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb17-437"><a href="#cb17-437" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb17-438"><a href="#cb17-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-439"><a href="#cb17-439" aria-hidden="true" tabindex="-1"></a>As we can see what is super interesting is that we get a representation of the trajectory where we de-untangled the "static / energy" and the dynamic part : when we have done the projection only the angle is moving during integration. </span>
+<span id="cb17-440"><a href="#cb17-440" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-441"><a href="#cb17-441" aria-hidden="true" tabindex="-1"></a><span class="fu">#### From action-angle to state</span></span>
+<span id="cb17-442"><a href="#cb17-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-443"><a href="#cb17-443" aria-hidden="true" tabindex="-1"></a>Now the interesting part ! We can go back from this action / angle representation to the real physical space !</span>
+<span id="cb17-444"><a href="#cb17-444" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-445"><a href="#cb17-445" aria-hidden="true" tabindex="-1"></a>Basically it boils down to two inversions, the second one has an analytic solution implemented in scipy but the first one</span>
+<span id="cb17-446"><a href="#cb17-446" aria-hidden="true" tabindex="-1"></a>doesn't, but it has a few characteristics :</span>
 <span id="cb17-447"><a href="#cb17-447" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-448"><a href="#cb17-448" aria-hidden="true" tabindex="-1"></a>Now the interesting part ! We can go back from this action / angle representation to the real physical space !</span>
-<span id="cb17-449"><a href="#cb17-449" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-450"><a href="#cb17-450" aria-hidden="true" tabindex="-1"></a>Basically it boils down to two inversions, the second one has an analytic solution implemented in scipy but the first one</span>
-<span id="cb17-451"><a href="#cb17-451" aria-hidden="true" tabindex="-1"></a>doesn't, but it has a few characteristics :</span>
-<span id="cb17-452"><a href="#cb17-452" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-453"><a href="#cb17-453" aria-hidden="true" tabindex="-1"></a>As we choosen to represent the Libration regime, the pendulum has a turning point $\theta_{max} \in [0, \pi)$, and as it</span>
-<span id="cb17-454"><a href="#cb17-454" aria-hidden="true" tabindex="-1"></a>corresponds to an extremal point we also have $\dot \theta = 0$ there (the pendulum is turning around) and thus</span>
-<span id="cb17-455"><a href="#cb17-455" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-456"><a href="#cb17-456" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-457"><a href="#cb17-457" aria-hidden="true" tabindex="-1"></a>\kH(\theta, \dot \theta) = \frac{1}{2}\dot \theta^2 + 1 -\cos\theta = 1 - \cos\theta_{max} \;\in\; [0, 2)</span>
-<span id="cb17-458"><a href="#cb17-458" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-459"><a href="#cb17-459" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-460"><a href="#cb17-460" aria-hidden="true" tabindex="-1"></a>Thus:</span>
-<span id="cb17-461"><a href="#cb17-461" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-462"><a href="#cb17-462" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-463"><a href="#cb17-463" aria-hidden="true" tabindex="-1"></a>m = \frac{\kH}{2} \in [0, 1),</span>
-<span id="cb17-464"><a href="#cb17-464" aria-hidden="true" tabindex="-1"></a>\qquad</span>
-<span id="cb17-465"><a href="#cb17-465" aria-hidden="true" tabindex="-1"></a>\kI(0) = \frac{8}{\pi}\big(E(0) - K(0)\big) = 0,</span>
-<span id="cb17-466"><a href="#cb17-466" aria-hidden="true" tabindex="-1"></a>\qquad</span>
-<span id="cb17-467"><a href="#cb17-467" aria-hidden="true" tabindex="-1"></a>\kI(1) = \frac{8}{\pi}E(1) = \frac{8}{\pi}</span>
-<span id="cb17-468"><a href="#cb17-468" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-469"><a href="#cb17-469" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-470"><a href="#cb17-470" aria-hidden="true" tabindex="-1"></a>so, from the definition of $K$ and $E$:</span>
-<span id="cb17-471"><a href="#cb17-471" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-472"><a href="#cb17-472" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-473"><a href="#cb17-473" aria-hidden="true" tabindex="-1"></a>\kI(m) \in \left[0, \tfrac{8}{\pi}\right),</span>
-<span id="cb17-474"><a href="#cb17-474" aria-hidden="true" tabindex="-1"></a>\qquad</span>
-<span id="cb17-475"><a href="#cb17-475" aria-hidden="true" tabindex="-1"></a>\kI'(m) = \frac{4}{\pi}\,K(m) &gt; 0</span>
-<span id="cb17-476"><a href="#cb17-476" aria-hidden="true" tabindex="-1"></a>\quad\Longrightarrow\quad</span>
-<span id="cb17-477"><a href="#cb17-477" aria-hidden="true" tabindex="-1"></a>\kI \text{ is strictly increasing}</span>
-<span id="cb17-478"><a href="#cb17-478" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb17-479"><a href="#cb17-479" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-480"><a href="#cb17-480" aria-hidden="true" tabindex="-1"></a>So to find $m$ such that $\kI(m) = a \in \left[0, \tfrac{8}{\pi}\right)$ we just need to find the point where $\kI(m) - a = 0$, we are</span>
-<span id="cb17-481"><a href="#cb17-481" aria-hidden="true" tabindex="-1"></a>exactly in the setup where we can use <span class="in">`brentq`</span> from scipy (change of sign and continuous), and because it's monotonic we know we find the unique root !</span>
-<span id="cb17-482"><a href="#cb17-482" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-485"><a href="#cb17-485" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb17-486"><a href="#cb17-486" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: invert</span></span>
-<span id="cb17-487"><a href="#cb17-487" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> brentq</span>
-<span id="cb17-488"><a href="#cb17-488" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-489"><a href="#cb17-489" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-490"><a href="#cb17-490" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> m_from_I(I):</span>
-<span id="cb17-491"><a href="#cb17-491" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Invert I(m) = 8/pi[E(m) - (1 - m)K(m)].</span></span>
-<span id="cb17-492"><a href="#cb17-492" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb17-493"><a href="#cb17-493" aria-hidden="true" tabindex="-1"></a>    I <span class="op">=</span> np.asarray(I)</span>
-<span id="cb17-494"><a href="#cb17-494" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> [brentq(<span class="kw">lambda</span> mm: action(np.sqrt(mm)) <span class="op">-</span> a, <span class="fl">0.0</span>, <span class="dv">1</span> <span class="op">-</span> <span class="fl">1e-15</span>, xtol<span class="op">=</span><span class="fl">1e-14</span>)</span>
-<span id="cb17-495"><a href="#cb17-495" aria-hidden="true" tabindex="-1"></a>         <span class="cf">for</span> a <span class="kw">in</span> I.ravel()]</span>
-<span id="cb17-496"><a href="#cb17-496" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(m).reshape(I.shape)</span>
-<span id="cb17-497"><a href="#cb17-497" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-498"><a href="#cb17-498" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-499"><a href="#cb17-499" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> phi_from_F_m(F, m):</span>
-<span id="cb17-500"><a href="#cb17-500" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Invert F(phi, m) in its first argument at fixed m: the Jacobi amplitude</span></span>
-<span id="cb17-501"><a href="#cb17-501" aria-hidden="true" tabindex="-1"></a><span class="co">    phi = am(F | m). Closed form, no solve.</span></span>
-<span id="cb17-502"><a href="#cb17-502" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb17-503"><a href="#cb17-503" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ellipj(F, m)[<span class="dv">3</span>]</span>
-<span id="cb17-504"><a href="#cb17-504" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-505"><a href="#cb17-505" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-506"><a href="#cb17-506" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> state_from_phi_H(phi, H):</span>
-<span id="cb17-507"><a href="#cb17-507" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""(phi, H) -&gt; (theta, thetadot), the inverse of the atan2 in `angle` above.</span></span>
-<span id="cb17-508"><a href="#cb17-508" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb17-509"><a href="#cb17-509" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.stack([<span class="dv">2</span> <span class="op">*</span> np.arcsin(np.sqrt(H <span class="op">/</span> <span class="dv">2</span>) <span class="op">*</span> np.sin(phi)),</span>
-<span id="cb17-510"><a href="#cb17-510" aria-hidden="true" tabindex="-1"></a>                     np.sqrt(<span class="dv">2</span> <span class="op">*</span> H) <span class="op">*</span> np.cos(phi)], <span class="op">-</span><span class="dv">1</span>)</span>
-<span id="cb17-511"><a href="#cb17-511" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb17-512"><a href="#cb17-512" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-515"><a href="#cb17-515" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb17-516"><a href="#cb17-516" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: invert-traj</span></span>
-<span id="cb17-517"><a href="#cb17-517" aria-hidden="true" tabindex="-1"></a>r_traj_m <span class="op">=</span> m_from_I(traj_I)                              <span class="co"># I   -&gt; m,   the numerical one</span></span>
-<span id="cb17-518"><a href="#cb17-518" aria-hidden="true" tabindex="-1"></a>r_traj_F <span class="op">=</span> traj_alpha <span class="op">*</span> ellipk(r_traj_m) <span class="op">*</span> <span class="dv">2</span> <span class="op">/</span> np.pi     <span class="co"># alpha -&gt; F, just a rescaling</span></span>
-<span id="cb17-519"><a href="#cb17-519" aria-hidden="true" tabindex="-1"></a>r_traj_phi <span class="op">=</span> phi_from_F_m(r_traj_F, r_traj_m)            <span class="co"># F   -&gt; phi, the analytic one</span></span>
-<span id="cb17-520"><a href="#cb17-520" aria-hidden="true" tabindex="-1"></a>r_traj <span class="op">=</span> state_from_phi_H(r_traj_phi, <span class="dv">2</span> <span class="op">*</span> r_traj_m)      <span class="co"># (phi, H = 2m) -&gt; state</span></span>
-<span id="cb17-521"><a href="#cb17-521" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-522"><a href="#cb17-522" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"m     recovered to </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">abs</span>(r_traj_m <span class="op">-</span> traj_k <span class="op">**</span> <span class="dv">2</span>)<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.1e}</span><span class="ss">"</span>)</span>
-<span id="cb17-523"><a href="#cb17-523" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"state recovered to </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">abs</span>(r_traj <span class="op">-</span> traj)<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.1e}</span><span class="ss">"</span>)</span>
-<span id="cb17-524"><a href="#cb17-524" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb17-525"><a href="#cb17-525" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-528"><a href="#cb17-528" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb17-529"><a href="#cb17-529" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-roundtrip</span></span>
-<span id="cb17-530"><a href="#cb17-530" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Decoded state (thin line) over the original (thick, faded) — any mismatch would show as a fringe of colour."</span></span>
-<span id="cb17-531"><a href="#cb17-531" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-align: center</span></span>
-<span id="cb17-532"><a href="#cb17-532" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
-<span id="cb17-533"><a href="#cb17-533" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-summary: "Show plotting code"</span></span>
-<span id="cb17-534"><a href="#cb17-534" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">5</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb17-535"><a href="#cb17-535" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> [(axs[<span class="dv">0</span>, <span class="dv">0</span>], <span class="vs">r"</span><span class="dv">$</span><span class="vs">I</span><span class="dv">$</span><span class="vs">"</span>, traj_I), (axs[<span class="dv">1</span>, <span class="dv">0</span>], <span class="vs">r"</span><span class="dv">$</span><span class="ch">\a</span><span class="vs">lpha</span><span class="dv">$</span><span class="vs">"</span>, traj_alpha),</span>
-<span id="cb17-536"><a href="#cb17-536" aria-hidden="true" tabindex="-1"></a>        (axs[<span class="dv">0</span>, <span class="dv">1</span>], <span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, r_traj[..., <span class="dv">0</span>]), (axs[<span class="dv">1</span>, <span class="dv">1</span>], <span class="vs">r"</span><span class="dv">$\d</span><span class="vs">ot</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, r_traj[..., <span class="dv">1</span>])]</span>
-<span id="cb17-537"><a href="#cb17-537" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a, label, y <span class="kw">in</span> rows:</span>
-<span id="cb17-538"><a href="#cb17-538" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(theta0)):</span>
-<span id="cb17-539"><a href="#cb17-539" aria-hidden="true" tabindex="-1"></a>        a.plot(t, y[:, i], color<span class="op">=</span>COLORS[i], lw<span class="op">=</span><span class="fl">1.2</span>,</span>
-<span id="cb17-540"><a href="#cb17-540" aria-hidden="true" tabindex="-1"></a>               label<span class="op">=</span>(<span class="ss">f"H = </span><span class="sc">{</span>H0[i]<span class="sc">:.2f}</span><span class="ss">,  "</span> <span class="vs">r"</span><span class="dv">$\d</span><span class="vs">ot</span><span class="ch">\a</span><span class="vs">lpha</span><span class="dv">$</span><span class="vs"> = "</span> <span class="ss">f"</span><span class="sc">{</span><span class="dv">2</span> <span class="op">*</span> np<span class="sc">.</span>pi <span class="op">/</span> T0[i]<span class="sc">:.2f}</span><span class="ss">"</span></span>
-<span id="cb17-541"><a href="#cb17-541" aria-hidden="true" tabindex="-1"></a>                      <span class="cf">if</span> a <span class="kw">is</span> axs[<span class="dv">0</span>, <span class="dv">0</span>] <span class="cf">else</span> <span class="va">None</span>))</span>
-<span id="cb17-542"><a href="#cb17-542" aria-hidden="true" tabindex="-1"></a>    a.set_ylabel(label)</span>
-<span id="cb17-543"><a href="#cb17-543" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-544"><a href="#cb17-544" aria-hidden="true" tabindex="-1"></a><span class="co"># the original state drawn underneath the decoded one, thick and faded: the thin line on</span></span>
-<span id="cb17-545"><a href="#cb17-545" aria-hidden="true" tabindex="-1"></a><span class="co"># top is the round trip, so any mismatch at all would show up as a fringe of colour</span></span>
-<span id="cb17-546"><a href="#cb17-546" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a, y <span class="kw">in</span> [(axs[<span class="dv">0</span>, <span class="dv">1</span>], traj[..., <span class="dv">0</span>]), (axs[<span class="dv">1</span>, <span class="dv">1</span>], traj[..., <span class="dv">1</span>])]:</span>
-<span id="cb17-547"><a href="#cb17-547" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(theta0)):</span>
-<span id="cb17-548"><a href="#cb17-548" aria-hidden="true" tabindex="-1"></a>        a.plot(t, y[:, i], color<span class="op">=</span>COLORS[i], lw<span class="op">=</span><span class="fl">4.5</span>, alpha<span class="op">=</span><span class="fl">.25</span>, zorder<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb17-549"><a href="#cb17-549" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-550"><a href="#cb17-550" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].set_title(<span class="st">"action - angle: one constant, one ramp"</span>)</span>
-<span id="cb17-551"><a href="#cb17-551" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].set_title(<span class="st">"decoded back to the state, over the original "</span></span>
-<span id="cb17-552"><a href="#cb17-552" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f"(max error </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">abs</span>(r_traj <span class="op">-</span> traj)<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.0e}</span><span class="ss">)"</span>)</span>
-<span id="cb17-553"><a href="#cb17-553" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].set_ylim(<span class="dv">0</span>, <span class="dv">8</span> <span class="op">/</span> np.pi)                    <span class="co"># the whole range of I, so flat is flat</span></span>
-<span id="cb17-554"><a href="#cb17-554" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].axhline(<span class="dv">8</span> <span class="op">/</span> np.pi, color<span class="op">=</span><span class="st">"k"</span>, ls<span class="op">=</span><span class="st">":"</span>, lw<span class="op">=</span><span class="fl">.8</span>)</span>
-<span id="cb17-555"><a href="#cb17-555" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].annotate(<span class="vs">r"</span><span class="dv">$</span><span class="vs">8/</span><span class="er">\</span><span class="vs">pi</span><span class="dv">$</span><span class="vs">, the separatrix"</span>, (t[<span class="dv">0</span>], <span class="dv">8</span> <span class="op">/</span> np.pi), fontsize<span class="op">=</span><span class="dv">8</span>, va<span class="op">=</span><span class="st">"top"</span>)</span>
-<span id="cb17-556"><a href="#cb17-556" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">7</span>, loc<span class="op">=</span><span class="st">"center right"</span>)</span>
-<span id="cb17-557"><a href="#cb17-557" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">1</span>, <span class="dv">0</span>].<span class="bu">set</span>(yticks<span class="op">=</span>[<span class="op">-</span>np.pi, <span class="dv">0</span>, np.pi], yticklabels<span class="op">=</span>[<span class="vs">r"</span><span class="dv">$</span><span class="vs">-</span><span class="er">\</span><span class="vs">pi</span><span class="dv">$</span><span class="vs">"</span>, <span class="st">"0"</span>, <span class="vs">r"</span><span class="dv">$</span><span class="er">\</span><span class="vs">pi</span><span class="dv">$</span><span class="vs">"</span>])</span>
-<span id="cb17-558"><a href="#cb17-558" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a <span class="kw">in</span> axs[<span class="dv">1</span>]:</span>
-<span id="cb17-559"><a href="#cb17-559" aria-hidden="true" tabindex="-1"></a>    a.set_xlabel(<span class="st">"t"</span>)</span>
-<span id="cb17-560"><a href="#cb17-560" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
-<span id="cb17-561"><a href="#cb17-561" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb17-562"><a href="#cb17-562" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb17-448"><a href="#cb17-448" aria-hidden="true" tabindex="-1"></a>As we choosen to represent the Libration regime, the pendulum has a turning point $\theta_{max} \in [0, \pi)$, and as it</span>
+<span id="cb17-449"><a href="#cb17-449" aria-hidden="true" tabindex="-1"></a>corresponds to an extremal point we also have $\dot \theta = 0$ there (the pendulum is turning around) and thus</span>
+<span id="cb17-450"><a href="#cb17-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-451"><a href="#cb17-451" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb17-452"><a href="#cb17-452" aria-hidden="true" tabindex="-1"></a>\kH(\theta, \dot \theta) = \frac{1}{2}\dot \theta^2 + 1 -\cos\theta = 1 - \cos\theta_{max} \;\in\; [0, 2)</span>
+<span id="cb17-453"><a href="#cb17-453" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb17-454"><a href="#cb17-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-455"><a href="#cb17-455" aria-hidden="true" tabindex="-1"></a>Thus:</span>
+<span id="cb17-456"><a href="#cb17-456" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-457"><a href="#cb17-457" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb17-458"><a href="#cb17-458" aria-hidden="true" tabindex="-1"></a>m = \frac{\kH}{2} \in [0, 1),</span>
+<span id="cb17-459"><a href="#cb17-459" aria-hidden="true" tabindex="-1"></a>\qquad</span>
+<span id="cb17-460"><a href="#cb17-460" aria-hidden="true" tabindex="-1"></a>\kI(0) = \frac{8}{\pi}\big(E(0) - K(0)\big) = 0,</span>
+<span id="cb17-461"><a href="#cb17-461" aria-hidden="true" tabindex="-1"></a>\qquad</span>
+<span id="cb17-462"><a href="#cb17-462" aria-hidden="true" tabindex="-1"></a>\kI(1) = \frac{8}{\pi}E(1) = \frac{8}{\pi}</span>
+<span id="cb17-463"><a href="#cb17-463" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb17-464"><a href="#cb17-464" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-465"><a href="#cb17-465" aria-hidden="true" tabindex="-1"></a>so, from the definition of $K$ and $E$:</span>
+<span id="cb17-466"><a href="#cb17-466" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-467"><a href="#cb17-467" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb17-468"><a href="#cb17-468" aria-hidden="true" tabindex="-1"></a>\kI(m) \in \left[0, \tfrac{8}{\pi}\right),</span>
+<span id="cb17-469"><a href="#cb17-469" aria-hidden="true" tabindex="-1"></a>\qquad</span>
+<span id="cb17-470"><a href="#cb17-470" aria-hidden="true" tabindex="-1"></a>\kI'(m) = \frac{4}{\pi}\,K(m) &gt; 0</span>
+<span id="cb17-471"><a href="#cb17-471" aria-hidden="true" tabindex="-1"></a>\quad\Longrightarrow\quad</span>
+<span id="cb17-472"><a href="#cb17-472" aria-hidden="true" tabindex="-1"></a>\kI \text{ is strictly increasing}</span>
+<span id="cb17-473"><a href="#cb17-473" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb17-474"><a href="#cb17-474" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-475"><a href="#cb17-475" aria-hidden="true" tabindex="-1"></a>So to find $m$ such that $\kI(m) = a \in \left[0, \tfrac{8}{\pi}\right)$ we just need to find the point where $\kI(m) - a = 0$, we are</span>
+<span id="cb17-476"><a href="#cb17-476" aria-hidden="true" tabindex="-1"></a>exactly in the setup where we can use <span class="in">`brentq`</span> from scipy (change of sign and continuous), and because it's monotonic we know we find the unique root !</span>
+<span id="cb17-477"><a href="#cb17-477" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-480"><a href="#cb17-480" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb17-481"><a href="#cb17-481" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: invert</span></span>
+<span id="cb17-482"><a href="#cb17-482" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> brentq</span>
+<span id="cb17-483"><a href="#cb17-483" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-484"><a href="#cb17-484" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-485"><a href="#cb17-485" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> m_from_I(I):</span>
+<span id="cb17-486"><a href="#cb17-486" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Invert I(m) = 8/pi[E(m) - (1 - m)K(m)].</span></span>
+<span id="cb17-487"><a href="#cb17-487" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb17-488"><a href="#cb17-488" aria-hidden="true" tabindex="-1"></a>    I <span class="op">=</span> np.asarray(I)</span>
+<span id="cb17-489"><a href="#cb17-489" aria-hidden="true" tabindex="-1"></a>    m <span class="op">=</span> [brentq(<span class="kw">lambda</span> mm: action(np.sqrt(mm)) <span class="op">-</span> a, <span class="fl">0.0</span>, <span class="dv">1</span> <span class="op">-</span> <span class="fl">1e-15</span>, xtol<span class="op">=</span><span class="fl">1e-14</span>)</span>
+<span id="cb17-490"><a href="#cb17-490" aria-hidden="true" tabindex="-1"></a>         <span class="cf">for</span> a <span class="kw">in</span> I.ravel()]</span>
+<span id="cb17-491"><a href="#cb17-491" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(m).reshape(I.shape)</span>
+<span id="cb17-492"><a href="#cb17-492" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-493"><a href="#cb17-493" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-494"><a href="#cb17-494" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> phi_from_F_m(F, m):</span>
+<span id="cb17-495"><a href="#cb17-495" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Invert F(phi, m) in its first argument at fixed m: the Jacobi amplitude</span></span>
+<span id="cb17-496"><a href="#cb17-496" aria-hidden="true" tabindex="-1"></a><span class="co">    phi = am(F | m). Closed form, no solve.</span></span>
+<span id="cb17-497"><a href="#cb17-497" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb17-498"><a href="#cb17-498" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ellipj(F, m)[<span class="dv">3</span>]</span>
+<span id="cb17-499"><a href="#cb17-499" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-500"><a href="#cb17-500" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-501"><a href="#cb17-501" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> state_from_phi_H(phi, H):</span>
+<span id="cb17-502"><a href="#cb17-502" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""(phi, H) -&gt; (theta, thetadot), the inverse of the atan2 in `angle` above.</span></span>
+<span id="cb17-503"><a href="#cb17-503" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb17-504"><a href="#cb17-504" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.stack([<span class="dv">2</span> <span class="op">*</span> np.arcsin(np.sqrt(H <span class="op">/</span> <span class="dv">2</span>) <span class="op">*</span> np.sin(phi)),</span>
+<span id="cb17-505"><a href="#cb17-505" aria-hidden="true" tabindex="-1"></a>                     np.sqrt(<span class="dv">2</span> <span class="op">*</span> H) <span class="op">*</span> np.cos(phi)], <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb17-506"><a href="#cb17-506" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb17-507"><a href="#cb17-507" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-510"><a href="#cb17-510" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb17-511"><a href="#cb17-511" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: invert-traj</span></span>
+<span id="cb17-512"><a href="#cb17-512" aria-hidden="true" tabindex="-1"></a>r_traj_m <span class="op">=</span> m_from_I(traj_I)                              <span class="co"># I   -&gt; m,   the numerical one</span></span>
+<span id="cb17-513"><a href="#cb17-513" aria-hidden="true" tabindex="-1"></a>r_traj_F <span class="op">=</span> traj_alpha <span class="op">*</span> ellipk(r_traj_m) <span class="op">*</span> <span class="dv">2</span> <span class="op">/</span> np.pi     <span class="co"># alpha -&gt; F, just a rescaling</span></span>
+<span id="cb17-514"><a href="#cb17-514" aria-hidden="true" tabindex="-1"></a>r_traj_phi <span class="op">=</span> phi_from_F_m(r_traj_F, r_traj_m)            <span class="co"># F   -&gt; phi, the analytic one</span></span>
+<span id="cb17-515"><a href="#cb17-515" aria-hidden="true" tabindex="-1"></a>r_traj <span class="op">=</span> state_from_phi_H(r_traj_phi, <span class="dv">2</span> <span class="op">*</span> r_traj_m)      <span class="co"># (phi, H = 2m) -&gt; state</span></span>
+<span id="cb17-516"><a href="#cb17-516" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-517"><a href="#cb17-517" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"m     recovered to </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">abs</span>(r_traj_m <span class="op">-</span> traj_k <span class="op">**</span> <span class="dv">2</span>)<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.1e}</span><span class="ss">"</span>)</span>
+<span id="cb17-518"><a href="#cb17-518" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"state recovered to </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">abs</span>(r_traj <span class="op">-</span> traj)<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.1e}</span><span class="ss">"</span>)</span>
+<span id="cb17-519"><a href="#cb17-519" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb17-520"><a href="#cb17-520" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-523"><a href="#cb17-523" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb17-524"><a href="#cb17-524" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-roundtrip</span></span>
+<span id="cb17-525"><a href="#cb17-525" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Decoded state (thin line) over the original (thick, faded)."</span></span>
+<span id="cb17-526"><a href="#cb17-526" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-align: center</span></span>
+<span id="cb17-527"><a href="#cb17-527" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb17-528"><a href="#cb17-528" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-summary: "Show plotting code"</span></span>
+<span id="cb17-529"><a href="#cb17-529" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">5</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-530"><a href="#cb17-530" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> [(axs[<span class="dv">0</span>, <span class="dv">0</span>], <span class="vs">r"</span><span class="dv">$</span><span class="vs">I</span><span class="dv">$</span><span class="vs">"</span>, traj_I), (axs[<span class="dv">1</span>, <span class="dv">0</span>], <span class="vs">r"</span><span class="dv">$</span><span class="ch">\a</span><span class="vs">lpha</span><span class="dv">$</span><span class="vs">"</span>, traj_alpha),</span>
+<span id="cb17-531"><a href="#cb17-531" aria-hidden="true" tabindex="-1"></a>        (axs[<span class="dv">0</span>, <span class="dv">1</span>], <span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, r_traj[..., <span class="dv">0</span>]), (axs[<span class="dv">1</span>, <span class="dv">1</span>], <span class="vs">r"</span><span class="dv">$\d</span><span class="vs">ot</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, r_traj[..., <span class="dv">1</span>])]</span>
+<span id="cb17-532"><a href="#cb17-532" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a, label, y <span class="kw">in</span> rows:</span>
+<span id="cb17-533"><a href="#cb17-533" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(theta0)):</span>
+<span id="cb17-534"><a href="#cb17-534" aria-hidden="true" tabindex="-1"></a>        a.plot(t, y[:, i], color<span class="op">=</span>COLORS[i], lw<span class="op">=</span><span class="fl">1.2</span>,</span>
+<span id="cb17-535"><a href="#cb17-535" aria-hidden="true" tabindex="-1"></a>               label<span class="op">=</span>(<span class="ss">f"H = </span><span class="sc">{</span>H0[i]<span class="sc">:.2f}</span><span class="ss">,  "</span> <span class="vs">r"</span><span class="dv">$\d</span><span class="vs">ot</span><span class="ch">\a</span><span class="vs">lpha</span><span class="dv">$</span><span class="vs"> = "</span> <span class="ss">f"</span><span class="sc">{</span><span class="dv">2</span> <span class="op">*</span> np<span class="sc">.</span>pi <span class="op">/</span> T0[i]<span class="sc">:.2f}</span><span class="ss">"</span></span>
+<span id="cb17-536"><a href="#cb17-536" aria-hidden="true" tabindex="-1"></a>                      <span class="cf">if</span> a <span class="kw">is</span> axs[<span class="dv">0</span>, <span class="dv">0</span>] <span class="cf">else</span> <span class="va">None</span>))</span>
+<span id="cb17-537"><a href="#cb17-537" aria-hidden="true" tabindex="-1"></a>    a.set_ylabel(label)</span>
+<span id="cb17-538"><a href="#cb17-538" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-539"><a href="#cb17-539" aria-hidden="true" tabindex="-1"></a><span class="co"># the original state drawn underneath the decoded one, thick and faded: the thin line on</span></span>
+<span id="cb17-540"><a href="#cb17-540" aria-hidden="true" tabindex="-1"></a><span class="co"># top is the round trip, so any mismatch at all would show up as a fringe of colour</span></span>
+<span id="cb17-541"><a href="#cb17-541" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a, y <span class="kw">in</span> [(axs[<span class="dv">0</span>, <span class="dv">1</span>], traj[..., <span class="dv">0</span>]), (axs[<span class="dv">1</span>, <span class="dv">1</span>], traj[..., <span class="dv">1</span>])]:</span>
+<span id="cb17-542"><a href="#cb17-542" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(theta0)):</span>
+<span id="cb17-543"><a href="#cb17-543" aria-hidden="true" tabindex="-1"></a>        a.plot(t, y[:, i], color<span class="op">=</span>COLORS[i], lw<span class="op">=</span><span class="fl">4.5</span>, alpha<span class="op">=</span><span class="fl">.25</span>, zorder<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb17-544"><a href="#cb17-544" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-545"><a href="#cb17-545" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].set_title(<span class="st">"action - angle: one constant, one ramp"</span>)</span>
+<span id="cb17-546"><a href="#cb17-546" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].set_title(<span class="st">"decoded back to the state, over the original "</span></span>
+<span id="cb17-547"><a href="#cb17-547" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f"(max error </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">abs</span>(r_traj <span class="op">-</span> traj)<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.0e}</span><span class="ss">)"</span>)</span>
+<span id="cb17-548"><a href="#cb17-548" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].set_ylim(<span class="dv">0</span>, <span class="dv">8</span> <span class="op">/</span> np.pi)                    <span class="co"># the whole range of I, so flat is flat</span></span>
+<span id="cb17-549"><a href="#cb17-549" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].axhline(<span class="dv">8</span> <span class="op">/</span> np.pi, color<span class="op">=</span><span class="st">"k"</span>, ls<span class="op">=</span><span class="st">":"</span>, lw<span class="op">=</span><span class="fl">.8</span>)</span>
+<span id="cb17-550"><a href="#cb17-550" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].annotate(<span class="vs">r"</span><span class="dv">$</span><span class="vs">8/</span><span class="er">\</span><span class="vs">pi</span><span class="dv">$</span><span class="vs">, the separatrix"</span>, (t[<span class="dv">0</span>], <span class="dv">8</span> <span class="op">/</span> np.pi), fontsize<span class="op">=</span><span class="dv">8</span>, va<span class="op">=</span><span class="st">"top"</span>)</span>
+<span id="cb17-551"><a href="#cb17-551" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">7</span>, loc<span class="op">=</span><span class="st">"center right"</span>)</span>
+<span id="cb17-552"><a href="#cb17-552" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">1</span>, <span class="dv">0</span>].<span class="bu">set</span>(yticks<span class="op">=</span>[<span class="op">-</span>np.pi, <span class="dv">0</span>, np.pi], yticklabels<span class="op">=</span>[<span class="vs">r"</span><span class="dv">$</span><span class="vs">-</span><span class="er">\</span><span class="vs">pi</span><span class="dv">$</span><span class="vs">"</span>, <span class="st">"0"</span>, <span class="vs">r"</span><span class="dv">$</span><span class="er">\</span><span class="vs">pi</span><span class="dv">$</span><span class="vs">"</span>])</span>
+<span id="cb17-553"><a href="#cb17-553" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a <span class="kw">in</span> axs[<span class="dv">1</span>]:</span>
+<span id="cb17-554"><a href="#cb17-554" aria-hidden="true" tabindex="-1"></a>    a.set_xlabel(<span class="st">"t"</span>)</span>
+<span id="cb17-555"><a href="#cb17-555" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb17-556"><a href="#cb17-556" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb17-557"><a href="#cb17-557" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
